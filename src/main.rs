@@ -40,10 +40,16 @@ impl<'a> Node<'a> {
         match self {
             Node::Branch(b) => {
                 if i < b.left.length() {
-                    Node::new_branch(b.left.insert(s, i), b.right.clone())
+                    Node::new_branch(
+                        b.left.insert(s, i),
+                        b.right.clone(),
+                    )
                 }
                 else {
-                    Node::new_branch(b.left.clone(), b.right.insert(s, i - b.left.length()))
+                    Node::new_branch(
+                        b.left.clone(),
+                        b.right.insert(s, i - b.left.length()),
+                    )
                 }
             },
             Node::Leaf(l) => {
@@ -61,7 +67,10 @@ impl<'a> Node<'a> {
                     Node::new(s),
                 )} else {(
                         Node::new(unsafe {l.value.get_unchecked(0..i)}),
-                        Node::new_branch(Node::new(s), Node::new(unsafe {l.value.get_unchecked(i..l.length)}))
+                        Node::new_branch(
+                            Node::new(s),
+                            Node::new(unsafe {l.value.get_unchecked(i..l.length)}),
+                        )
                 )};
                 Node::new_branch(left, right)
             },
