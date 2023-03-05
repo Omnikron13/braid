@@ -31,6 +31,7 @@ impl<'a> Node<'a> {
         }
     }
 
+    // Insert string at given (char) index
     fn insert(&self, s: &'a str, i: usize) -> Node<'a> {
         match self {
             Node::Branch(b) => {
@@ -50,6 +51,12 @@ impl<'a> Node<'a> {
                 }
             },
             Node::Leaf(l) => {
+                // Short circuit for the edge case of an 'empty' leaf
+                if l.length == 0 {
+                    return Node::new(s);
+                }
+
+                // General case for non-zero length leaf
                 let length = l.length + s.chars().count();
                 let (left, right) = if i == 0 {(
                     Node::new(s),
@@ -73,6 +80,7 @@ impl<'a> Node<'a> {
 
 
 fn main() {
+    /*
     let n = Node::new("foo");
     //println!("{n:?}");
 
@@ -98,6 +106,7 @@ fn main() {
         },
         Node::Branch(b) => {
             println!("branch: {b:?}");
+            println!("foo");
             println!("b ptr: {:p}", match b.right.clone() {
                 Node::Leaf(l) => l,
                 Node::Branch(b) => Rc::new(LeafNode { length: 0, value: "" }),
@@ -108,6 +117,13 @@ fn main() {
     println!("n: {n:?}");
     println!("q: {q:?}");
     println!("p: {p:?}");
+    */
+    
+    let rope = Node::new("");
+    println!("rope: {rope:?}");
+
+    let rope = rope.insert("foo", 0);
+    println!("rope: {rope:?}");
 }
 
 
