@@ -24,6 +24,10 @@ impl<'a> Node<'a> {
         Node::Leaf(Rc::new(LeafNode{length: s.chars().count(), value: s}))
     }
 
+    fn new_branch(left: Node<'a>, right: Node<'a>) -> Node<'a> {
+        Node::Branch(Rc::new(BranchNode { length: left.length() + right.length(), left, right }))
+    }
+
     fn length(&self) -> usize {
         match self {
             Node::Branch(b) => b.length,
@@ -36,18 +40,10 @@ impl<'a> Node<'a> {
         match self {
             Node::Branch(b) => {
                 if i < b.left.length() {
-                    Node::Branch(Rc::new(BranchNode{
-                        length: b.length + s.chars().count(),
-                        left: b.left.insert(s, i),
-                        right: b.right.clone(),
-                    }))
+                    Node::new_branch(b.left.insert(s, i), b.right.clone())
                 }
                 else {
-                    Node::Branch(Rc::new(BranchNode{
-                        length: b.length + s.chars().count(),
-                        left: b.left.clone(),
-                        right: b.right.insert(s, i - b.left.length())
-                    }))
+                    Node::new_branch(b.left.clone(), b.right.insert(s, i - b.left.length()))
                 }
             },
             Node::Leaf(l) => {
@@ -57,7 +53,6 @@ impl<'a> Node<'a> {
                 }
 
                 // General case for non-zero length leaf
-                let length = l.length + s.chars().count();
                 let (left, right) = if i == 0 {(
                     Node::new(s),
                     Node::Leaf(l.clone()),
@@ -66,13 +61,9 @@ impl<'a> Node<'a> {
                     Node::new(s),
                 )} else {(
                         Node::new(unsafe {l.value.get_unchecked(0..i)}),
-                        Node::Branch(Rc::new(BranchNode {
-                            length: length - i,
-                            left: Node::new(s),
-                            right: Node::new(unsafe {l.value.get_unchecked(i..l.length)})
-                        })),
+                        Node::new_branch(Node::new(s), Node::new(unsafe {l.value.get_unchecked(i..l.length)}))
                 )};
-                Node::Branch(Rc::new(BranchNode{length, left, right}))
+                Node::new_branch(left, right)
             },
         }
     }
