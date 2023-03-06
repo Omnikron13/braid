@@ -174,6 +174,219 @@ mod tests {
    }
 
 
+   // Remove all characters from leaf node
+   #[test]
+   fn test_remove_all_leaf() -> Result<(), String> {
+      let n = Strand::new_leaf("1234");
+      println!("Removing all: {:?}", n);
+      let n = n.remove(0, 4);
+      println!("Removing all: {:?}", n);
+      assert_eq!(n.length(), 0, "Strand should be empty");
+      match n {
+         Strand::Leaf(_) => Ok(()),
+         _default => Err(String::from("Strand should be a leaf")),
+      }
+   }
+
+   // Remove all characters from branch node
+   #[test]
+   fn test_remove_all_branch() -> Result<(), String> {
+      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
+      println!("Removing all: {:?}", n);
+      let n = n.remove(0, 6);
+      println!("Removing all: {:?}", n);
+      assert_eq!(n.length(), 0, "Strand should be empty");
+      match n {
+         Strand::Leaf(_) => Ok(()),
+         _ => Err(String::from("Strand should be a leaf")),
+      }
+   }
+
+   // Test remove drop left branch
+   #[test]
+   fn test_remove_drop_left() {
+      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
+      println!("Dropping left: {:?}", n);
+      let n = n.remove(0, 3);
+      println!("Dropping left: {:?}", n);
+      match n {
+         Strand::Leaf(l) => {
+            assert_eq!(l.value, "bar");
+         },
+         _ => panic!("Strand should be a leaf"),
+      }
+   }
+
+   // Test remove drop right branch
+   #[test]
+   fn test_remove_drop_right() {
+      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
+      println!("Dropping right: {:?}", n);
+      let n = n.remove(3, 3);
+      println!("Dropping right: {:?}", n);
+      match n {
+         Strand::Leaf(l) => {
+            assert_eq!(l.value, "foo");
+         },
+         _ => panic!("Strand should be a leaf"),
+      }
+   }
+
+   // Test trim head of leaf
+   #[test]
+   fn test_remove_trim_head_leaf() {
+      let n = Strand::new_leaf("foobar");
+      println!("Trimming head: {:?}", n);
+      let n = n.remove(0, 3);
+      println!("Trimming head: {:?}", n);
+      match n {
+         Strand::Leaf(leaf) => {
+            assert_eq!(leaf.value, "bar");
+         },
+         _ => panic!("Strand should be a leaf"),
+      }
+   }
+
+   // Test trim tail of leaf
+   #[test]
+   fn test_remove_trim_tail_leaf() {
+      let n = Strand::new_leaf("foobar");
+      println!("Trimming tail: {:?}", n);
+      let n = n.remove(3, 3);
+      println!("Trimming tail: {:?}", n);
+      match n {
+         Strand::Leaf(leaf) => {
+            assert_eq!(leaf.value, "foo");
+         },
+         _ => panic!("Strand should be a leaf"),
+      }
+   }
+
+   // Test remove full split of leaf
+   #[test]
+   fn test_remove_full_split_leaf() {
+      let n = Strand::new_leaf("foo_bar");
+      println!("Full split: {:?}", n);
+      let n = n.remove(3, 1);
+      println!("Full split: {:?}", n);
+      match n {
+         Strand::Branch(branch) => {
+            match (&branch.left, &branch.right) {
+               (Strand::Leaf(left), Strand::Leaf(right)) => {
+                  assert_eq!(left.value, "foo");
+                  assert_eq!(right.value, "bar");
+               },
+               _ => panic!("New left & right segments should be leaves"),
+            }
+         },
+         _ => panic!("Strand should be a branch"),
+      }
+   }
+
+   // Test trim head of branch
+   #[test]
+   fn test_remove_trim_head_branch() {
+      let n = Strand::new_branch(Strand::new_leaf("foo_"), Strand::new_leaf("bar"));
+      println!("Trimming head: {:?}", n);
+      let n = n.remove(0, 4);
+      println!("Trimming head: {:?}", n);
+      match n {
+         Strand::Leaf(leaf) => {
+            assert_eq!(leaf.value, "bar");
+         },
+         _ => panic!("Strand should be a leaf"),
+      }
+   }
+
+   // Test trim tail of branch
+   #[test]
+   fn test_remove_trim_tail_branch() {
+      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("_bar"));
+      println!("Trimming tail: {:?}", n);
+      let n = n.remove(3, 4);
+      println!("Trimming tail: {:?}", n);
+      match n {
+         Strand::Leaf(leaf) => {
+            assert_eq!(leaf.value, "foo");
+         },
+         _ => panic!("Strand should be a leaf"),
+      }
+   }
+
+   // Test remove full split of branch
+   #[test]
+   fn test_remove_full_split_branch() {
+      let n = Strand::new_branch(Strand::new_leaf("foo_"), Strand::new_leaf("_bar"));
+      println!("Full split: {:?}", n);
+      let n = n.remove(3, 2);
+      println!("Full split: {:?}", n);
+      match n {
+         Strand::Branch(branch) => {
+            match (&branch.left, &branch.right) {
+               (Strand::Leaf(left), Strand::Leaf(right)) => {
+                  assert_eq!(left.value, "foo");
+                  assert_eq!(right.value, "bar");
+               },
+               _ => panic!("New left & right segments should be leaves"),
+            }
+         },
+         _ => panic!("Strand should be a branch"),
+      }
+   }
+
+   // Test trim tail of left side of branch
+   #[test]
+   fn test_remove_inner_trim_branch_left() {
+      let n = Strand::new_branch(Strand::new_leaf("foo_"), Strand::new_leaf("bar"));
+      println!("Inner trim: {:?}", n);
+      let n = n.remove(3, 1);
+      println!("Inner trim: {:?}", n);
+      match n {
+         Strand::Branch(branch) => {
+            match (&branch.left, &branch.right) {
+               (Strand::Leaf(left), Strand::Leaf(right)) => {
+                  assert_eq!(left.value, "foo");
+                  assert_eq!(right.value, "bar");
+               },
+               _ => panic!("New left & right segments should be leaves"),
+            }
+         },
+         _ => panic!("Strand should be a branch"),
+      }
+   }
+
+   // Test trim head of right side of branch
+   #[test]
+   fn test_remove_inner_trim_branch_right() {
+      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("_bar"));
+      println!("Inner trim: {:?}", n);
+      let n = n.remove(3, 1);
+      println!("Inner trim: {:?}", n);
+      match n {
+         Strand::Branch(branch) => {
+            match (&branch.left, &branch.right) {
+               (Strand::Leaf(left), Strand::Leaf(right)) => {
+                  assert_eq!(left.value, "foo");
+                  assert_eq!(right.value, "bar");
+               },
+               _ => panic!("New left & right segments should be leaves"),
+            }
+         },
+         _ => panic!("Strand should be a branch"),
+      }
+   }
+
+
+
+
+   // Bench remove drop left branch
+   #[bench]
+   fn bench_remove_drop_left(b: &mut Bencher) {
+      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
+      b.iter(|| for _ in 0..1000 {n.remove(0, 3);})
+   }
+
+
    // Length of random string to insert into for benchmarking (128kb)
    const TEST_STRING_LEN: usize = 1024 * 128;
    // Number of times to insert a space at a random index
