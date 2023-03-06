@@ -1,3 +1,4 @@
+use std::iter;
 use std::rc::Rc;
 
 #[derive(Clone, Debug)]
@@ -139,6 +140,19 @@ impl<'a> Strand<'a> {
                Strand::new_leaf(unsafe {leaf.value.get_unchecked(0..i)}),
                Strand::new_leaf(unsafe {leaf.value.get_unchecked(i + n..leaf.length)}),
             );
+         },
+      }
+   }
+
+
+   // Return an iterator over the leaf nodes
+   fn leaf_iter(&'a self) -> Box<dyn Iterator<Item = Rc<LeafNode>> + 'a> {
+      match self {
+         Strand::Branch(branch) => {
+            Box::new(branch.left.leaf_iter().chain(branch.right.leaf_iter()))
+         },
+         Strand::Leaf(leaf) => {
+            Box::new(iter::once(leaf.clone()))
          },
       }
    }
@@ -374,6 +388,27 @@ mod tests {
          },
          _ => panic!("Strand should be a branch"),
       }
+   }
+
+   // Test left_iter()
+   #[test]
+   fn test_leaf_iterator() {
+      let st = Strand::new_branch(
+         Strand::new_branch(
+            Strand::new_leaf("["),
+            Strand::new_leaf("foo"),
+         ),
+         Strand::new_branch(
+            Strand::new_leaf(":"),
+            Strand::new_branch(
+               Strand::new_leaf("bar"),
+               Strand::new_leaf("]"),
+            ),
+         ),
+      );
+      println!("{st:#?}");
+      let iter = st.leaf_iter();
+      assert_eq!(iter.map(|leaf| leaf.as_ref().value).collect::<String>(), "[foo:bar]");
    }
 
 
