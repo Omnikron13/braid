@@ -7,14 +7,14 @@ pub enum Strand<'a> {
 }
 
 #[derive(Debug)]
-struct BranchNode<'a> {
+pub struct BranchNode<'a> {
     length: usize,
     left: Strand<'a>,
     right: Strand<'a>,
 }
 
 #[derive(Debug)]
-struct LeafNode<'a> {
+pub struct LeafNode<'a> {
     length: usize,
     value: &'a str,
 }
