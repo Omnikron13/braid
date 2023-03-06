@@ -73,6 +73,75 @@ impl<'a> Strand<'a> {
 
       Strand::new_branch(left, right)
    }
+
+
+   // Remove substring of length n starting at (char) index i
+   pub fn remove(&self, i: usize, n: usize) -> Strand<'a> {
+      assert!(i < self.length(), "Index out of bounds");
+      assert!(i + n <= self.length(), "Strand doesn't have enough characters");
+
+      // Short circuit for clearing entire strand
+      if n == self.length() {
+         return Strand::new_leaf("");
+      }
+
+      match self {
+         // Trim branch
+         Strand::Branch(branch) => {
+            // Trim head
+            if i == 0 {
+               // Discard left entirely
+               if n == branch.left.length() {
+                  return branch.right.clone();
+               }
+               // ...and trim the head of right
+               if n > branch.left.length() {
+                  return branch.right.remove(0, n - branch.left.length());
+               }
+
+               // Trim head of left (right unchanged)
+               return Strand::new_branch(
+                  branch.left.remove(0, n),
+                  branch.right.clone(),
+               );
+            }
+
+            // Trim tail/inner trim
+            if i >= branch.left.length() {
+               // Drop right
+               if n == branch.right.length() {
+                  return branch.left.clone()
+               }
+
+               // Trim/split tail
+               return Strand::new_branch(
+                  branch.left.clone(),
+                  branch.right.remove(i - branch.left.length(), n),
+               );
+            }
+
+            // Full split
+            return Strand::new_branch(
+               branch.left.remove(i, branch.left.length() - i),
+               branch.right.remove(0, n - (branch.left.length() - i)),
+            );
+         },
+
+         // Head/Tail/Split
+         Strand::Leaf(leaf) => {
+            if i == 0 {
+               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(n..leaf.length)});
+            }
+            if i + n == leaf.length {
+               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(0..i)});
+            }
+            return Strand::new_branch(
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(0..i)}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(i + n..leaf.length)}),
+            );
+         },
+      }
+   }
 }
 
 
