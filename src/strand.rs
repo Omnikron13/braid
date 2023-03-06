@@ -391,7 +391,7 @@ mod tests {
       }
    }
 
-   // Test left_iter()
+   // Test leaf_iter()
    #[test]
    fn test_leaf_iterator() {
       let st = Strand::new_branch(
