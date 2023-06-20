@@ -8,6 +8,7 @@
 // It is declared here as 'Strand', with the intention of being a relatively 'pure' implementation
 // of the data structure, agnostic of details such as where it's consituent strings are buffered,
 // whether it is a subset of a larger rope, etc.
+use std::fmt;
 use std::iter;
 use std::rc::Rc;
 
@@ -226,6 +227,22 @@ impl<'a> Strand<'a> {
 }
 
 
+// 'Ropes' are basically just a particular string implementation, thus should simply display
+// their contiguous character representation as default output/formatting.
+impl fmt::Display for Strand<'_> {
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      match self {
+         Strand::Branch(branch) => {
+            write!(f, "{}{}", branch.left, branch.right)
+         },
+         Strand::Leaf(leaf) => {
+            write!(f, "{}", leaf.value)
+         },
+      }
+   }
+}
+
+
 // Some lovely tests to try and catch regressions, etc.
 #[cfg(test)]
 mod tests {
@@ -241,6 +258,26 @@ mod tests {
          .take(n)
          .map(char::from)
          .collect()
+   }
+
+
+   #[test]
+   fn test_to_string() {
+      // TODO: should probably create a bettter setup function/macro for this kind of test
+      let st = Strand::new_branch(
+         Strand::new_branch(
+            Strand::new_leaf("[[["),
+            Strand::new_leaf("=foo"),
+         ),
+         Strand::new_branch(
+            Strand::new_leaf(":~:"),
+            Strand::new_branch(
+               Strand::new_leaf("bar="),
+               Strand::new_leaf("]]]"),
+            ),
+         ),
+      );
+      assert_eq!(st.to_string(), "[[[=foo:~:bar=]]]");
    }
 
 
