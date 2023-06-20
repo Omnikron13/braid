@@ -333,6 +333,47 @@ mod tests {
    }
 
 
+   // Sweep a removal of 2, 4, 8, and 16 chars across a reasonably nested test strand
+   #[test]
+   fn test_remove_sweep() -> Result<(), String> {
+      let st = Strand::new_branch(
+         Strand::new_branch(
+            Strand::new_branch(
+               Strand::new_leaf("Aa01"),
+               Strand::new_leaf("Bb23"),
+            ),
+            Strand::new_branch(
+               Strand::new_leaf("Cc45"),
+               Strand::new_leaf("Dd67"),
+            )
+         ),
+         Strand::new_branch(
+            Strand::new_branch(
+               Strand::new_leaf("Ee89"),
+               Strand::new_leaf("Ff01"),
+            ),
+            Strand::new_branch(
+               Strand::new_leaf("Gg23"),
+               Strand::new_leaf("Hh45"),
+            )
+         )
+      );
+
+      let canon = String::from("Aa01Bb23Cc45Dd67Ee89Ff01Gg23Hh45");
+
+      for x in [2, 4, 8, 16] {
+         for i in 0..(34-x)/2 {
+            let r = st.clone().remove(i*2, x);
+            println!("remove {:0>2}-{x:0>2}: {r:?}", i*2);
+            // TODO: use the proper error message thingy
+            assert_eq!(format!("{r}"), format!("{}{}", &canon[0..i*2], &canon[(i*2)+x..canon.len()]));
+         }
+      }
+
+      return Ok(());
+   }
+
+
    // Remove all characters from leaf node
    #[test]
    fn test_remove_all_leaf() -> Result<(), String> {
