@@ -183,6 +183,7 @@ impl<'a> Strand<'a> {
    }
 
 
+   // TODO: rename, or remove, or rework into a more general iterator?
    // Return an iterator over all leaf nodes which overlap a given char range
    fn skip_iter(&'a self, mut y: usize, mut z: usize) -> Box<dyn Iterator<Item = Rc<LeafNode>> + 'a> {
       // SHort-circuit flag if the end index has already been filtered
