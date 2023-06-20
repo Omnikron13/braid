@@ -158,6 +158,31 @@ impl<'a> Strand<'a> {
    }
 
 
+   /// Return an iterator over the given [char] range
+   fn char_iter(&'a self, mut index: usize, mut length: usize) -> impl Iterator<Item=char> + 'a {
+      return self.leaf_iter().filter_map(move |x| {
+         // Short circuit out strands past the strand containing the end index
+         if length == 0 { return None };
+
+         // If the current strand does not contain the start index, filter it out and adjust the index
+         if index >= x.length {
+            index -= x.length;
+            return None;
+         }
+
+         // TODO: improve readability...
+         let i = index;
+         index = 0;
+         let n = std::cmp::min(x.length, length + i + 1);
+         length -= std::cmp::min(length, x.length);
+         return Some(unsafe { x.value.get_unchecked(i..n) });
+      })
+      // TODO: inline?
+      .map(|x| x.chars())
+      .flatten();
+   }
+
+
    // Return an iterator over all leaf nodes which overlap a given char range
    fn skip_iter(&'a self, mut y: usize, mut z: usize) -> Box<dyn Iterator<Item = Rc<LeafNode>> + 'a> {
       // SHort-circuit flag if the end index has already been filtered
@@ -464,6 +489,31 @@ mod tests {
       println!("as string: {}", st.leaf_iter().map(|leaf| leaf.as_ref().value).collect::<String>());
       let iter = st.skip_iter(4, 9);
       assert_eq!(iter.map(|leaf| leaf.as_ref().value).collect::<String>(), "=foo:~:bar=");
+   }
+
+   // Test char_iter(), which iterates over the [char]s in the given range
+   #[test]
+   fn test_char_iterator() {
+      let st = Strand::new_branch(
+         Strand::new_branch(
+            Strand::new_leaf("[[["),
+            Strand::new_leaf("=foo"),
+         ),
+         Strand::new_branch(
+            Strand::new_leaf(":~:"),
+            Strand::new_branch(
+               Strand::new_leaf("bar="),
+               Strand::new_leaf("]]]"),
+            ),
+         ),
+      );
+      println!("full strand: {st:#?}");
+      println!("as string: {}", st.leaf_iter().map(|leaf| leaf.as_ref().value).collect::<String>());
+      let iter = st.char_iter(4, 9);
+      //for (i, c) in iter.enumerate() {
+      //    println!("char[{}]: {:?}", i, c);
+      //}
+      assert_eq!(iter.collect::<String>(), "foo:~:bar");
    }
 
 
