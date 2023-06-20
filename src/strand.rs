@@ -1,6 +1,8 @@
 use std::iter;
 use std::rc::Rc;
 
+type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
+
 #[derive(Clone, Debug)]
 pub enum Strand<'a> {
     Branch(Rc<BranchNode<'a>>),
@@ -146,7 +148,7 @@ impl<'a> Strand<'a> {
 
 
    // Return an iterator over the leaf nodes
-   fn leaf_iter(&'a self) -> Box<dyn Iterator<Item = Rc<LeafNode>> + 'a> {
+   fn leaf_iter(&'a self) -> BoxedLeafIterator {
       match self {
          Strand::Branch(branch) => {
             Box::new(branch.left.leaf_iter().chain(branch.right.leaf_iter()))
@@ -185,7 +187,7 @@ impl<'a> Strand<'a> {
 
    // TODO: rename, or remove, or rework into a more general iterator?
    // Return an iterator over all leaf nodes which overlap a given char range
-   fn skip_iter(&'a self, mut y: usize, mut z: usize) -> Box<dyn Iterator<Item = Rc<LeafNode>> + 'a> {
+   fn skip_iter(&'a self, mut y: usize, mut z: usize) -> BoxedLeafIterator {
       // SHort-circuit flag if the end index has already been filtered
       let mut end = false;
 
