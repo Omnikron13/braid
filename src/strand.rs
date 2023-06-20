@@ -189,9 +189,6 @@ impl<'a> Strand<'a> {
       let mut end = false;
 
       Box::new(self.leaf_iter().filter(move |x| {
-         // Adjusted start index, end index, current strand length & string value
-         println!("# y: {y}, z: {z}, [{}]< {} >", x.length, x.value);
-
          // Short circuit out strands past the strand containing the end index
          if end { return false };
 
