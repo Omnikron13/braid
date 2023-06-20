@@ -196,6 +196,18 @@ impl<'a> Strand<'a> {
    }
 
 
+   // Return at iterator over the index of all occurences of a given char in the given range
+   fn findchar_iter(&'a self, needle: char, from: usize, to: usize) -> impl Iterator<Item=usize> + 'a {
+      // Note that currently char_iter takes start + length, and this takes start + end...
+      return self.char_iter(from, to - from).enumerate().filter_map(move |(i, x)| {
+         if x == needle {
+            return Some(i);
+         }
+         return None;
+      });
+   }
+
+
    // TODO: rename, or remove, or rework into a more general iterator?
    // Return an iterator over all leaf nodes which overlap a given char range
    fn skip_iter(&'a self, mut y: usize, mut z: usize) -> BoxedLeafIterator {
@@ -576,6 +588,18 @@ mod tests {
       //    println!("char[{}]: {:?}", i, c);
       //}
       assert_eq!(iter.collect::<String>(), "foo:~:bar");
+   }
+
+
+   // TODO: add sub-tests for more complex usage?
+   #[test]
+   fn test_findchar_iter() {
+      let st = Strand::new_leaf("this\ntext\nhas\nnewlines");
+      let iter = st.findchar_iter('\n', 0, st.length());
+      let v = iter.collect::<Vec<usize>>();
+      println!("st: {st:?}");
+      println!("newlines at: {:?}", v);
+      assert_eq!(v, vec![4, 9, 13]);
    }
 
 
