@@ -14,7 +14,7 @@ use std::rc::Rc;
 
 type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum Strand<'a> {
     Branch(Rc<BranchNode<'a>>),
     Leaf(Rc<LeafNode<'a>>),
@@ -237,6 +237,21 @@ impl fmt::Display for Strand<'_> {
          },
          Strand::Leaf(leaf) => {
             write!(f, "{}", leaf.value)
+         },
+      }
+   }
+}
+
+
+// Condensed debug output format, which should still be pretty easy to pick apart when needed.
+impl fmt::Debug for Strand<'_> {
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      match self {
+         Strand::Branch(branch) => {
+            write!(f, "[ {:?} : {:?} ]", branch.left, branch.right)
+         },
+         Strand::Leaf(leaf) => {
+            write!(f, "'{}'", leaf.value)
          },
       }
    }
