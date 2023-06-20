@@ -224,7 +224,7 @@ mod tests {
    use rand::{distributions::Alphanumeric, SeedableRng, Rng}; // 0.8
    use rand_xoshiro::Xoshiro256Plus;
 
-   // 
+   // Generate a random string of length n characters
    fn rand_string(n: usize) -> String {
       Xoshiro256Plus::seed_from_u64(13)
          .sample_iter(&Alphanumeric)
