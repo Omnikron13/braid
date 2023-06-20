@@ -188,7 +188,7 @@ impl<'a> Strand<'a> {
    // TODO: rename, or remove, or rework into a more general iterator?
    // Return an iterator over all leaf nodes which overlap a given char range
    fn skip_iter(&'a self, mut y: usize, mut z: usize) -> BoxedLeafIterator {
-      // SHort-circuit flag if the end index has already been filtered
+      // Short-circuit flag if the end index has already been filtered
       let mut end = false;
 
       Box::new(self.leaf_iter().filter(move |x| {
