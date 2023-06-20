@@ -214,7 +214,7 @@ impl<'a> Strand<'a> {
 }
 
 
-// 
+// Some lovely tests to try and catch regressions, etc.
 #[cfg(test)]
 mod tests {
    use super::*;
