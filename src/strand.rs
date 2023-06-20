@@ -1,3 +1,13 @@
+// Copyright 2023 Joey Sabey <joey.sabey@gmx.com>
+//
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+
+// This file contains the core implementation of the rope data structure.
+// It is declared here as 'Strand', with the intention of being a relatively 'pure' implementation
+// of the data structure, agnostic of details such as where it's consituent strings are buffered,
+// whether it is a subset of a larger rope, etc.
 use std::iter;
 use std::rc::Rc;
 
