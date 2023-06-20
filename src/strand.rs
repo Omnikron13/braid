@@ -112,18 +112,20 @@ impl<'a> Strand<'a> {
                if n > branch.left.length() {
                   return branch.right.remove(0, n - branch.left.length());
                }
+            }
 
-               // Trim head of left (right unchanged)
+            // Contained to left branch
+            if i + n <= branch.left.length() {
                return Strand::new_branch(
-                  branch.left.remove(0, n),
+                  branch.left.remove(i, n),
                   branch.right.clone(),
                );
             }
 
-            // Trim tail/inner trim
+            // Contained to right branch
             if i >= branch.left.length() {
-               // Drop right
-               if n == branch.right.length() {
+               // Discard right entirely
+               if i == branch.left.length() && n >= branch.right.length() {
                   return branch.left.clone()
                }
 
