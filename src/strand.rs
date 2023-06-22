@@ -38,7 +38,7 @@ impl<'a> Strand<'a> {
       Strand::Leaf(Rc::new(LeafNode{length: s.chars().count(), value: s}))
    }
 
-   fn new_branch(left: Strand<'a>, right: Strand<'a>) -> Strand<'a> {
+   pub fn new_branch(left: Strand<'a>, right: Strand<'a>) -> Strand<'a> {
       Strand::Branch(Rc::new(BranchNode { length: left.length() + right.length(), left, right }))
    }
 
