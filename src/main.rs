@@ -12,4 +12,3 @@ fn main() {
     let rope = rope.insert("foo", 0);
     println!("rope: {rope:?}");
 }
-
