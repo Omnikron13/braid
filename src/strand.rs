@@ -174,7 +174,7 @@ impl<'a> Strand<'a> {
 
 
    /// Return an iterator over the individual char's in the strand
-   fn char_iter(&'a self) -> impl Iterator<Item=char> + 'a {
+   pub fn char_iter(&'a self) -> impl Iterator<Item=char> + 'a {
       return self.leaf_iter().flat_map(|x| x.value.chars());
    }
 
