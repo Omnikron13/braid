@@ -190,16 +190,13 @@ impl<'a> Strand<'a> {
    }
 
 
-   // Return an iterator over all the lines in the strand
-   // TODO: try to do this with e.g. take_while() (may need an actual iter class..?)
-   pub fn line_iter(&'a self) -> impl Iterator<Item = Box<impl Iterator<Item = char> + 'a>> + 'a {
-      return self.findchar_iter('\n', 0, self.length())
-         .chain(iter::once(self.length()))
-         .scan(0, |prev, x| {
-            let boxed = Box::new(self.char_iter().skip(*prev).take(x - *prev).filter(|&c| c != '\n'));
-            *prev = x;
-            return Some(boxed);
-         });
+   // Return an iterator over all the lines in the strand (as String's)
+   pub fn line_iter(&'a self) -> impl Iterator<Item = String> + 'a {
+      let mut chars = self.char_iter().peekable();
+      return iter::from_fn(move || {
+         chars.peek() ?;
+         return Some(chars.by_ref().take_while(|c| c != &'\n').collect::<String>());
+      });
    }
 
 
@@ -643,7 +640,7 @@ mod tests {
    fn test_line_iter() {
       let st = Strand::new_leaf("this\ntext\nhas\na\nfew\nnewlines");
       let iter = st.line_iter();
-      let v = iter.map(|l| l.collect::<String>()).collect::<Vec<String>>();
+      let v = iter.collect::<Vec<String>>();
       println!("st: {st:?}");
       println!("lines: {:?}", v);
       assert_eq!(v, vec!["this", "text", "has", "a", "few", "newlines"]);
