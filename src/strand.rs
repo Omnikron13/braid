@@ -198,36 +198,6 @@ impl<'a> Strand<'a> {
          return Some(chars.by_ref().take_while(|c| c != &'\n').collect::<String>());
       });
    }
-
-
-   // TODO: rename, or remove, or rework into a more general iterator?
-   // Return an iterator over all leaf nodes which overlap a given char range
-   fn skip_iter(&'a self, mut y: usize, mut z: usize) -> BoxedLeafIterator {
-      // Short-circuit flag if the end index has already been filtered
-      let mut end = false;
-
-      Box::new(self.leaf_iter().filter(move |x| {
-         // Short circuit out strands past the strand containing the end index
-         if end { return false };
-
-         // If the current strand does not contain the start index, filter it out abd adjust the index
-         if y >= x.length {
-            y -= x.length;
-            return false;
-         }
-
-         // If the current strand does not contain the end index, filter it out and adjust the index
-         if z + y >= x.length {
-            z -= x.length;
-            return true;
-         }
-
-         // If the logic reaches this point, the end index is within the current strand.
-         // The next iteration will read the new end flag and filter out the rest of the strands.
-         end = true;
-         return true;
-      }))
-   }
 }
 
 
@@ -574,28 +544,6 @@ mod tests {
       println!("{st:#?}");
       let iter = st.leaf_iter();
       assert_eq!(iter.map(|leaf| leaf.as_ref().value).collect::<String>(), "[foo:bar]");
-   }
-
-   // Test skip_iter(), which iterates all leaves which contain any part of a given char range
-   #[test]
-   fn test_skip_iterator() {
-      let st = Strand::new_branch(
-         Strand::new_branch(
-            Strand::new_leaf("[[["),
-            Strand::new_leaf("=foo"),
-         ),
-         Strand::new_branch(
-            Strand::new_leaf(":~:"),
-            Strand::new_branch(
-               Strand::new_leaf("bar="),
-               Strand::new_leaf("]]]"),
-            ),
-         ),
-      );
-      println!("full strand: {st:#?}");
-      println!("as string: {}", st.leaf_iter().map(|leaf| leaf.as_ref().value).collect::<String>());
-      let iter = st.skip_iter(4, 9);
-      assert_eq!(iter.map(|leaf| leaf.as_ref().value).collect::<String>(), "=foo:~:bar=");
    }
 
    // Test char_iter(), which iterates over the [char]s in the given range
