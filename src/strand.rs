@@ -173,35 +173,15 @@ impl<'a> Strand<'a> {
    }
 
 
-   /// Return an iterator over the given [char] range
-   fn char_iter(&'a self, mut index: usize, mut length: usize) -> impl Iterator<Item=char> + 'a {
-      return self.leaf_iter().filter_map(move |x| {
-         // Short circuit out strands past the strand containing the end index
-         if length == 0 { return None };
-
-         // If the current strand does not contain the start index, filter it out and adjust the index
-         if index >= x.length {
-            index -= x.length;
-            return None;
-         }
-
-         // TODO: improve readability...
-         let i = index;
-         index = 0;
-         let n = std::cmp::min(x.length, length + i + 1);
-         length -= std::cmp::min(length, x.length);
-         return Some(unsafe { x.value.get_unchecked(i..n) });
-      })
-      // TODO: inline?
-      .map(|x| x.chars())
-      .flatten();
+   /// Return an iterator over the individual char's in the strand
+   fn char_iter(&'a self) -> impl Iterator<Item=char> + 'a {
+      return self.leaf_iter().flat_map(|x| x.value.chars());
    }
 
 
    // Return at iterator over the index of all occurences of a given char in the given range
    fn findchar_iter(&'a self, needle: char, from: usize, to: usize) -> impl Iterator<Item=usize> + 'a {
-      // Note that currently char_iter takes start + length, and this takes start + end...
-      return self.char_iter(from, to - from).enumerate().filter_map(move |(i, x)| {
+      return self.char_iter().skip(from).take(to - from).enumerate().filter_map(move |(i, x)| {
          if x == needle {
             return Some(i);
          }
@@ -216,7 +196,7 @@ impl<'a> Strand<'a> {
       return self.findchar_iter('\n', 0, self.length())
          .chain(iter::once(self.length()))
          .scan(0, |prev, x| {
-            let boxed = Box::new(self.char_iter(*prev, x - *prev).filter(|&c| c != '\n'));
+            let boxed = Box::new(self.char_iter().skip(*prev).take(x - *prev).filter(|&c| c != '\n'));
             *prev = x;
             return Some(boxed);
          });
@@ -639,7 +619,7 @@ mod tests {
       );
       println!("full strand: {st:#?}");
       println!("as string: {}", st.leaf_iter().map(|leaf| leaf.as_ref().value).collect::<String>());
-      let iter = st.char_iter(4, 9);
+      let iter = st.char_iter().skip(4).take(9);
       //for (i, c) in iter.enumerate() {
       //    println!("char[{}]: {:?}", i, c);
       //}
