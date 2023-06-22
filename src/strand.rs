@@ -212,7 +212,7 @@ impl<'a> Strand<'a> {
 
    // Return an iterator over all the lines in the strand
    // TODO: try to do this with e.g. take_while() (may need an actual iter class..?)
-   fn line_iter(&'a self) -> impl Iterator<Item = Box<impl Iterator<Item = char> + 'a>> + 'a {
+   pub fn line_iter(&'a self) -> impl Iterator<Item = Box<impl Iterator<Item = char> + 'a>> + 'a {
       return self.findchar_iter('\n', 0, self.length())
          .chain(iter::once(self.length()))
          .scan(0, |prev, x| {
