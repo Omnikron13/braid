@@ -180,7 +180,7 @@ impl<'a> Strand<'a> {
 
 
    // Return at iterator over the index of all occurences of a given char in the given range
-   fn findchar_iter(&'a self, needle: char, from: usize, to: usize) -> impl Iterator<Item=usize> + 'a {
+   pub fn findchar_iter(&'a self, needle: char, from: usize, to: usize) -> impl Iterator<Item=usize> + 'a {
       return self.char_iter().skip(from).take(to - from).enumerate().filter_map(move |(i, x)| {
          if x == needle {
             return Some(i);
