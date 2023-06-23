@@ -240,6 +240,26 @@ mod tests {
    use rand::{distributions::Alphanumeric, SeedableRng, Rng}; // 0.8
    use rand_xoshiro::Xoshiro256Plus;
 
+
+   // Quickly constructs test strand from string literals.
+   //  e.g. strand!("foo", "bar", "baz") -> ['foo'  ['bar'  baz']]
+   // Can also be nested to produce unbalanced trees, if required.
+   //  e.g. strand!("foo", strand!("bar, "baz"), "qux") -> ['foo'  [['bar'  'baz']  'qux']]
+   macro_rules! strand {
+      ($s:literal) => { Strand::new_leaf($s) };
+      ($( $l:expr, $r:expr ),+) => { strand!($( Strand::new_branch(strand!($l), strand!($r)) ),+) };
+      ($x:expr, $( $l:expr, $r:expr ),+) => { strand!($x, $( strand!($l, $r) ),+) };
+      ($e:expr) => { $e };
+   }
+
+   #[test]
+   fn test_macro() {
+      let st = strand!("foo", strand!("bar", "baz"), "qux");
+      assert_eq!(format!("{st}"), "foobarbazqux");
+      assert_eq!(format!("{st:?}"), "['foo'  [['bar'  'baz']  'qux']]");
+   }
+
+
    // Generate a random string of length n characters
    fn rand_string(n: usize) -> String {
       Xoshiro256Plus::seed_from_u64(13)
