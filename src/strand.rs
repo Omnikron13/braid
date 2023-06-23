@@ -624,8 +624,8 @@ mod tests {
 
    #[test]
    fn test_byte_iter() {
-       let st = strand!("a", "b", strand!("c", "d"), "e", strand!("f", "g"));
-       assert_eq!(st.byte_iter().collect::<Vec<u8>>(), vec![97, 98, 99, 100, 101, 102, 103]);
+      let st = strand!("a", "b", strand!("c", "d"), "e", strand!("f", "g"));
+      assert_eq!(st.byte_iter().collect::<Vec<u8>>(), vec![97, 98, 99, 100, 101, 102, 103]);
    }
 
 
