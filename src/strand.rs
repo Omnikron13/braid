@@ -222,7 +222,7 @@ impl fmt::Debug for Strand<'_> {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       match self {
          Strand::Branch(branch) => {
-            write!(f, "[ {:?} : {:?} ]", branch.left, branch.right)
+            write!(f, "[{:?}  {:?}]", branch.left, branch.right)
          },
          Strand::Leaf(leaf) => {
             write!(f, "'{}'", leaf.value)
