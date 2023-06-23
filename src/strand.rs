@@ -263,6 +263,8 @@ impl fmt::Debug for Strand<'_> {
 impl Hash for Strand<'_> {
    fn hash<H: Hasher>(&self, state: &mut H) {
       self.byte_iter().for_each(|b| state.write_u8(b));
+      // Kinda annoying hack to make it hash the same as an identical str...
+      state.write_u8(0xff);
    }
 }
 
