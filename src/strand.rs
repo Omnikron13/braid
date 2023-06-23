@@ -17,6 +17,19 @@ use std::rc::Rc;
 use xxhash_rust::xxh3::Xxh3;
 
 
+// Quickly constructs test strand from string literals.
+//  e.g. strand!("foo", "bar", "baz") -> ['foo'  ['bar'  baz']]
+// Can also be nested to produce unbalanced trees, if required.
+//  e.g. strand!("foo", strand!("bar, "baz"), "qux") -> ['foo'  [['bar'  'baz']  'qux']]
+#[cfg(test)]
+macro_rules! strand {
+   ($s:literal) => { Strand::new_leaf($s) };
+   ($( $l:expr, $r:expr ),+) => { strand!($( Strand::new_branch(strand!($l), strand!($r)) ),+) };
+   ($x:expr, $( $l:expr, $r:expr ),+) => { strand!($x, $( strand!($l, $r) ),+) };
+   ($e:expr) => { $e };
+}
+
+
 type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
 
 #[derive(Clone)]
@@ -281,17 +294,6 @@ mod tests {
    use rand_xoshiro::Xoshiro256Plus;
    use pretty_assertions::{assert_eq, assert_ne};
 
-
-   // Quickly constructs test strand from string literals.
-   //  e.g. strand!("foo", "bar", "baz") -> ['foo'  ['bar'  baz']]
-   // Can also be nested to produce unbalanced trees, if required.
-   //  e.g. strand!("foo", strand!("bar, "baz"), "qux") -> ['foo'  [['bar'  'baz']  'qux']]
-   macro_rules! strand {
-      ($s:literal) => { Strand::new_leaf($s) };
-      ($( $l:expr, $r:expr ),+) => { strand!($( Strand::new_branch(strand!($l), strand!($r)) ),+) };
-      ($x:expr, $( $l:expr, $r:expr ),+) => { strand!($x, $( strand!($l, $r) ),+) };
-      ($e:expr) => { $e };
-   }
 
    #[test]
    fn test_macro() {
