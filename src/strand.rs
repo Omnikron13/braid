@@ -13,6 +13,10 @@ use std::iter;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
+#[cfg(test)]
+use xxhash_rust::xxh3::Xxh3;
+
+
 type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
 
 #[derive(Clone)]
