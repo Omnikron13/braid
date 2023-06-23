@@ -250,6 +250,24 @@ impl Hash for Strand<'_> {
 }
 
 
+#[cfg(test)] #[test]
+fn test_hash() {
+   let st = strand!("foo", "bar", strand!("baz", "qux"));
+   let mut h = Xxh3::new();
+   st.hash(&mut h);
+   let st_h = h.digest();
+
+   let s = "foobarbazqux";
+   let mut h = Xxh3::new();
+   s.hash(&mut h);
+   let s_h = h.digest();
+
+   assert_eq!(st.to_string(), s);
+   assert_eq!(st_h, s_h);
+}
+
+
+
 // Some lovely tests to try and catch regressions, etc.
 #[cfg(test)]
 mod tests {
