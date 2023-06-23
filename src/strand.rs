@@ -198,6 +198,12 @@ impl<'a> Strand<'a> {
          return Some(chars.by_ref().take_while(|c| c != &'\n').collect::<String>());
       });
    }
+
+
+   // Return an iterator over all the bytes that, ultimately, comprise the strand
+   pub fn byte_iter(&'a self) -> impl Iterator<Item=u8> + 'a {
+      return self.leaf_iter().flat_map(|x| x.value.bytes());
+   }
 }
 
 
@@ -613,6 +619,13 @@ mod tests {
       println!("st: {st:?}");
       println!("lines: {:?}", v);
       assert_eq!(v, vec!["this", "text", "has", "a", "few", "newlines"]);
+   }
+
+
+   #[test]
+   fn test_byte_iter() {
+       let st = strand!("a", "b", strand!("c", "d"), "e", strand!("f", "g"));
+       assert_eq!(st.byte_iter().collect::<Vec<u8>>(), vec![97, 98, 99, 100, 101, 102, 103]);
    }
 
 
