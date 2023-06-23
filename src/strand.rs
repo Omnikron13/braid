@@ -10,6 +10,7 @@
 // whether it is a subset of a larger rope, etc.
 use std::fmt;
 use std::iter;
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
@@ -234,6 +235,17 @@ impl fmt::Debug for Strand<'_> {
             write!(f, "'{}'", leaf.value)
          },
       }
+   }
+}
+
+
+// Strand should be hashable not only for common use cases like hash maps, but perhaps
+// more interesting uses, like pinpointing where strands diverge?
+// Note: this implementation treats the Strand as opaque, only caring about the underlying
+//       string that it is storing.
+impl Hash for Strand<'_> {
+   fn hash<H: Hasher>(&self, state: &mut H) {
+      self.byte_iter().for_each(|b| state.write_u8(b));
    }
 }
 
