@@ -256,6 +256,28 @@ impl fmt::Debug for Strand<'_> {
 }
 
 
+// Enable == operator and shit
+impl Eq for Strand<'_> {}
+impl PartialEq for Strand<'_> {
+   fn eq(&self, other: &Self) -> bool {
+      // TODO: precompute & store the hashes
+      let mut hasher = Xxh3::new();
+      self.hash(&mut hasher);
+      let hash = hasher.digest();
+      hasher.reset();
+      other.hash(&mut hasher);
+      return hash == hasher.digest() && self.byte_iter().eq(other.byte_iter());
+   }
+}
+#[cfg(test)] #[test]
+fn test_eq() {
+    let st_1 = strand!("foo", "bar", strand!("baz", "qux"));
+    assert_eq!(st_1, strand!("foo", "bar", strand!("baz", "qux")));
+    assert_eq!(st_1, strand!("foo", strand!("bar", "baz"), "qux"));
+    assert_eq!(st_1, strand!("foobarbazqux"));
+}
+
+
 // Strand should be hashable not only for common use cases like hash maps, but perhaps
 // more interesting uses, like pinpointing where strands diverge?
 // Note: this implementation treats the Strand as opaque, only caring about the underlying
