@@ -12,9 +12,9 @@ use std::fmt;
 use std::iter;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
-
-#[cfg(test)]
 use xxhash_rust::xxh3::Xxh3;
+
+#[cfg(test)] use test::Bencher;
 
 
 // Quickly constructs test strand from string literals.
@@ -291,7 +291,6 @@ fn test_hash() {
 #[cfg(test)]
 mod tests {
    use super::*;
-   use test::Bencher;
    use rand::{distributions::Alphanumeric, SeedableRng, Rng}; // 0.8
    use rand_xoshiro::Xoshiro256Plus;
    use pretty_assertions::{assert_eq, assert_ne};
