@@ -319,7 +319,7 @@ fn test_hash() {
 #[cfg(test)]
 mod tests {
    use super::*;
-   use pretty_assertions::{assert_eq, assert_ne};
+   use pretty_assertions::{assert_eq, /*assert_ne*/};
 
 
    #[test]
