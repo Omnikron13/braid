@@ -14,8 +14,6 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use xxhash_rust::xxh3::Xxh3;
 
-#[cfg(test)] use test::Bencher;
-
 
 // Quickly constructs test strand from string literals.
 //  e.g. strand!("foo", "bar", "baz") -> ['foo'  ['bar'  baz']]
@@ -715,47 +713,5 @@ mod tests {
    fn test_byte_iter() {
       let st = strand!("a", "b", strand!("c", "d"), "e", strand!("f", "g"));
       assert_eq!(st.byte_iter().collect::<Vec<u8>>(), vec![97, 98, 99, 100, 101, 102, 103]);
-   }
-
-
-
-   // Bench remove drop left branch
-   #[bench]
-   fn bench_remove_drop_left(b: &mut Bencher) {
-      let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
-      b.iter(|| for _ in 0..1000 {n.remove(0, 3);})
-   }
-
-
-   // Length of random string to insert into for benchmarking (128kb)
-   const TEST_STRING_LEN: usize = 1024 * 128;
-   // Number of times to insert a space at a random index
-   const NUMBER_OF_INSERTS: usize = 1024;
-
-   // Benchmark inserting into normal rust String
-   #[bench]
-   fn bench_insert_string(b: &mut Bencher) {
-      let s = rand_string(TEST_STRING_LEN);
-      let mut rng = Xoshiro256Plus::seed_from_u64(13);
-      b.iter(|| {
-         let mut s = s.clone();
-         for _ in 0..NUMBER_OF_INSERTS {
-            s.insert_str(rng.gen_range(0..s.len()), " ");
-         }
-      });
-   }
-
-   // Benchmark inserting into Strand
-   #[bench]
-   fn bench_insert_strand(b: &mut Bencher) {
-      let s = rand_string(TEST_STRING_LEN);
-      let s = Strand::new_leaf(s.as_str());
-      let mut rng = Xoshiro256Plus::seed_from_u64(13);
-      b.iter(|| {
-         let mut sc = s.clone();
-         for _ in 0..NUMBER_OF_INSERTS {
-            sc = sc.insert(" ", rng.gen_range(0..s.length()));
-         }
-      });
    }
 }
