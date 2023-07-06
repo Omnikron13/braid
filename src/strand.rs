@@ -319,8 +319,6 @@ fn test_hash() {
 #[cfg(test)]
 mod tests {
    use super::*;
-   use rand::{distributions::Alphanumeric, SeedableRng, Rng}; // 0.8
-   use rand_xoshiro::Xoshiro256Plus;
    use pretty_assertions::{assert_eq, assert_ne};
 
 
