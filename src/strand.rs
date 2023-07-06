@@ -332,16 +332,6 @@ mod tests {
    }
 
 
-   // Generate a random string of length n characters
-   fn rand_string(n: usize) -> String {
-      Xoshiro256Plus::seed_from_u64(13)
-         .sample_iter(&Alphanumeric)
-         .take(n)
-         .map(char::from)
-         .collect()
-   }
-
-
    #[test]
    fn test_to_string() {
       // TODO: should probably create a bettter setup function/macro for this kind of test
