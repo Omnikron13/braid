@@ -44,6 +44,11 @@ impl CharWidthIndex {
       }
    }
 
+   /// Get the size of the index itself.
+   pub fn len(&self) -> usize {
+      return self.widths.len();
+   }
+
    /// Provides an iterator over the raw width:count paits.
    pub fn iter(&self) -> impl Iterator<Item = (u8, usize)> + '_ {
       return self.widths.iter().copied();
