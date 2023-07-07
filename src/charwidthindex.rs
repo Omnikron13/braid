@@ -68,7 +68,6 @@ impl FromIterator<char> for CharWidthIndex {
    /// unless you have actual compelling reasons to do otherwise.
    ///
    /// # Examples
-   ///
    /// ```
    /// use braid::charwidthindex::CharWidthIndex;
    ///
