@@ -99,7 +99,7 @@ where T: IntoIterator<Item = char> {
 mod tests {
    use pretty_assertions::{assert_eq, /*assert_ne*/};
 
-use crate::charwidthmap::CharWidthMap;
+   use crate::charwidthmap::CharWidthMap;
 
    #[test]
    fn test_counts() {
