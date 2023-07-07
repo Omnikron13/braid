@@ -126,4 +126,15 @@ mod tests {
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|(w, n)| format!("({w}:{n})")).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
    }
+
+   // Yeah, it's a bit of a knockoff... But apparently this is needed...
+   // TODO: merge tests
+   #[test]
+   fn test_from_intoiterator() {
+      let s = "test ‣ string ‣ alpha";
+      let m = CharWidthMap::from(s.chars());
+      assert_eq!(m.count(), 21);
+      assert_eq!(m.count_bytes(), 25);
+      assert_eq!(m.iter().map(|(w, n)| format!("({w}:{n})")).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
+   }
 }
