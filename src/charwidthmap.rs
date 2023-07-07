@@ -13,7 +13,7 @@
 //! the entire string, char by char, to compute. This module provides a way to
 //! cache the relevant information, so this kind of operation becomes much
 //! cheaper past the initial iteration.
-use std::iter::FromIterator;
+use std::iter::{FromIterator, IntoIterator};
 
 /// This is the primary struct which creates, and provides access to, the index.
 pub struct CharWidthMap {
@@ -82,6 +82,15 @@ impl FromIterator<char> for CharWidthMap {
          m.push(c);
          return m;
       })
+   }
+}
+
+
+/// Enable ::from() convesion for anything that can be converted into an Iterator<Item = char>.
+impl<T> From<T> for CharWidthMap
+where T: IntoIterator<Item = char> {
+   fn from(iter: T) -> Self {
+      return iter.into_iter().collect();
    }
 }
 
