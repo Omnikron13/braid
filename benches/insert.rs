@@ -8,7 +8,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use rand::random;
 use braid::strand::Strand;
 
-const TEXT: &str = include_str!("large.txt");
+const TEXT: &str = include_str!("data/large.txt");
 
 
 fn insert_small(c: &mut Criterion) {
@@ -92,7 +92,7 @@ fn insert_medium(c: &mut Criterion) {
 }
 
 
-const INSERT_TEXT: &str = include_str!("small.txt");
+const INSERT_TEXT: &str = include_str!("data/small.txt");
 
 fn insert_large(c: &mut Criterion) {
    let mut group = c.benchmark_group("insert_large");

@@ -6,10 +6,10 @@ extern crate criterion;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use braid::strand::Strand;
 
-const TEXT_SMALL: &str = include_str!("small.txt");
-const TEXT_MEDIUM: &str = include_str!("medium.txt");
-const TEXT_LARGE: &str = include_str!("large.txt");
-const TEXT_LF: &str = include_str!("lf.txt");
+const TEXT_SMALL: &str = include_str!("data/small.txt");
+const TEXT_MEDIUM: &str = include_str!("data/medium.txt");
+const TEXT_LARGE: &str = include_str!("data/large.txt");
+const TEXT_LF: &str = include_str!("data/lf.txt");
 
 
 fn from_str(c: &mut Criterion) {

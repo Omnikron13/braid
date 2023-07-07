@@ -8,8 +8,8 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use rand::random;
 use braid::strand::Strand;
 
-const TEXT: &str = include_str!("large.txt");
-const TEXT_SMALL: &str = include_str!("small.txt");
+const TEXT: &str = include_str!("data/large.txt");
+const TEXT_SMALL: &str = include_str!("data/small.txt");
 
 fn mul_string_length(text: &str, n: usize) -> String {
    let mut mtext = String::new();
