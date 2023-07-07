@@ -94,10 +94,10 @@ impl<'a> Strand<'a> {
                Strand::Leaf(leaf.clone()),
                Strand::new_leaf(s),
             )} else {(
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(0..i)}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.value.char_indices().nth(i).unwrap().0)}),
                Strand::new_branch(
                   Strand::new_leaf(s),
-                  Strand::new_leaf(unsafe {leaf.value.get_unchecked(i..leaf.length)}),
+                  Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.value.char_indices().nth(i).unwrap().0..)}),
                ),
             )}
          },
@@ -370,6 +370,16 @@ mod tests {
       let n = n.insert(" ", 12);
       let n = n.insert(" ", 14);
       println!("{:?}", n);
+   }
+
+
+   // Test inserting into a leaf comprised of multi-byte characters
+   #[test]
+   fn test_insert_unicode() {
+      let st = Strand::new_leaf("ⅠⅡⅢⅣ");
+      assert_eq!(st.insert("-", 0).to_string(), "-ⅠⅡⅢⅣ");
+      assert_eq!(st.insert("-", 2).to_string(), "ⅠⅡ-ⅢⅣ");
+      assert_eq!(st.insert("-", 4).to_string(), "ⅠⅡⅢⅣ-");
    }
 
 
