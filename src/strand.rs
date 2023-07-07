@@ -94,10 +94,10 @@ impl<'a> Strand<'a> {
                Strand::Leaf(leaf.clone()),
                Strand::new_leaf(s),
             )} else {(
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.value.char_indices().nth(i).unwrap().0)}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.byte_index(i))}),
                Strand::new_branch(
                   Strand::new_leaf(s),
-                  Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.value.char_indices().nth(i).unwrap().0..)}),
+                  Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.byte_index(i)..)}),
                ),
             )}
          },
@@ -163,20 +163,15 @@ impl<'a> Strand<'a> {
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
-            // TODO: extract this to a more clean & reusable location
-            let byte_index = |i| {
-               leaf.value.char_indices().nth(i).unwrap().0
-            };
-
             if i == 0 {
-               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(byte_index(n)..)});
+               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.byte_index(n)..)});
             }
             if i + n == leaf.length {
-               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(..byte_index(i))});
+               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.byte_index(i))});
             }
             return Strand::new_branch(
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..byte_index(i))}),
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(byte_index(i + n)..)}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.byte_index(i))}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.byte_index(i + n)..)}),
             );
          },
       }
@@ -292,6 +287,14 @@ impl Hash for Strand<'_> {
       self.byte_iter().for_each(|b| state.write_u8(b));
       // Kinda annoying hack to make it hash the same as an identical str...
       state.write_u8(0xff);
+   }
+}
+
+
+impl LeafNode<'_> {
+   // Convert a char/unicode index into a raw byte index for low level indexing/slicing/etc.
+   fn byte_index(&self, i: usize) -> usize {
+      self.value.char_indices().nth(i).unwrap().0
    }
 }
 
