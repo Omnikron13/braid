@@ -63,6 +63,22 @@ impl CharWidthIndex {
    pub fn count_bytes(&self) -> usize {
       return self.widths.iter().map(|(w, n)| *w as usize * n).sum();
    }
+
+   /// Get the byte index from a char index.
+   pub fn byte_index(&self, mut char_index: usize) -> usize {
+      let mut offset = 0;
+      for (w, n) in self.widths.iter() {
+         let w = *w as usize;
+         if n > &char_index {
+            return char_index * w + offset;
+         }
+         char_index -= n;
+         offset += w * n;
+      }
+      panic!("char_index out of bounds..? index: {char_index}, offset: {offset}");
+   }
+   // TODO: try again for a cleaner iterator-based implementation or something...
+   //       it might be pretty clean going with take_while() and fold..?
 }
 
 
