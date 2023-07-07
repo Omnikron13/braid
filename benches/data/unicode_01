@@ -1,0 +1,17 @@
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas commodo turpis vitae lectus bibendum, ac consectetur eros elementum. Vivamus interdum euismod mi, vel tristique velit finibus id. Fusce feugiat consequat massa, vel ultricies nibh placerat eu. Nunc sed vehicula augue. Nullam condimentum tellus non ligula congue, vel interdum elit condimentum. Praesent fringilla bibendum elit, at tincidunt lacus lobortis non. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec sed sollicitudin dui. Cras id erat feugiat, fringilla neque nec, volutpat risus.
+
+Sed ullamcorper mauris turpis, quis faucibus lacus consequat a. Quisque sit amet ante id tellus rutrum lacinia eu eget elit. Morbi cursus, risus sit amet varius sagittis, justo risus accumsan nunc, eget varius sem nibh at mi. Aliquam erat volutpat. Duis non sapien sed elit egestas interdum. Proin cursus imperdiet mi ut malesuada. Sed aliquet nunc et ligula posuere, vitae lobortis felis convallis. Nulla ultricies, nisl nec facilisis dignissim, nunc lectus pharetra massa, ut commodo erat neque at ipsum. Suspendisse cursus finibus justo ac posuere.
+
+中文字符、日本のテキスト、español acentos, français symboles, αγγλικά γράμματα, русский язык и эмодзи: 👋🌍🌟😊🌺🎉🍕🎶💡📚❤️👩‍🎓💻💪🌈✨🌼🍦🌸🌟🚀
+
+Österreichisches Deutsch mit Umlauten: ÄÖÜäöüß
+
+Special characters: @#$%^&*()-_+=<>{}[]|\/?!,.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vehicula sollicitudin urna, id finibus lectus ullamcorper sed. Phasellus viverra eros nec sapien blandit, sit amet placerat urna vestibulum. Aenean vulputate urna ac turpis mollis, at luctus neque pulvinar. Nullam bibendum, magna et eleifend suscipit, enim nibh vestibulum metus, id sagittis eros lorem non lacus. Integer nec orci et eros sollicitudin lobortis ac id tortor. Sed blandit mi nec mi venenatis, in finibus tellus feugiat. Nam nec augue ultricies, vulputate risus non, venenatis sapien. Suspendisse egestas, nunc sit amet tempus pulvinar, lectus metus elementum turpis, vel volutpat lorem lacus ac neque.
+
+🌞🌴🌊🏞️🍓🥗🎈🎨🎁🍩🌹🎵📷📖✈️🚲⚽️🎮🎬🎉🎊🎆💌🎈🎁🌻🌟🎶🍦🌈🏆🔥🍕🍉🚀💡🌺🌸😊🌍❤️👋💪💻👩‍🎓
+
+And some more random text to make the string even larger. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate quam sed tortor laoreet ultricies. Curabitur rhoncus metus eu ex rhoncus ultrices. Donec non risus mi. Nunc interdum eros id ligula dapibus congue. Sed maximus mi id erat ultricies, sed luctus justo semper. Integer sed aliquam nisi. Mauris vulputate bibendum lorem vitae sagittis. Phasellus faucibus euismod eros, at gravida dolor. Sed malesuada, velit nec pharetra facilisis, mi sapien feugiat libero, in iaculis dolor est at justo. Vestibulum facilisis turpis nunc, ac euismod quam sollicitudin ut.
+
+Phew! That should provide a decently large test string with a mix of characters for benchmarking your rope data structure.
