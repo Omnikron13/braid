@@ -163,15 +163,20 @@ impl<'a> Strand<'a> {
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
+            // TODO: extract this to a more clean & reusable location
+            let byte_index = |i| {
+               leaf.value.char_indices().nth(i).unwrap().0
+            };
+
             if i == 0 {
-               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(n..leaf.length)});
+               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(byte_index(n)..)});
             }
             if i + n == leaf.length {
-               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(0..i)});
+               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(..byte_index(i))});
             }
             return Strand::new_branch(
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(0..i)}),
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(i + n..leaf.length)}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..byte_index(i))}),
+               Strand::new_leaf(unsafe {leaf.value.get_unchecked(byte_index(i + n)..)}),
             );
          },
       }
@@ -365,6 +370,18 @@ mod tests {
       let n = n.insert(" ", 12);
       let n = n.insert(" ", 14);
       println!("{:?}", n);
+   }
+
+
+   // Test removing from a leaf comprised of multi-byte characters
+   #[test]
+   fn test_remove_unicode() {
+      let st = Strand::new_leaf("ⅠⅡⅢⅣⅤ");
+      assert_eq!(st.remove(0, 1).to_string(), "ⅡⅢⅣⅤ");
+      assert_eq!(st.remove(1, 1).to_string(), "ⅠⅢⅣⅤ");
+      assert_eq!(st.remove(2, 1).to_string(), "ⅠⅡⅣⅤ");
+      assert_eq!(st.remove(3, 1).to_string(), "ⅠⅡⅢⅤ");
+      assert_eq!(st.remove(4, 1).to_string(), "ⅠⅡⅢⅣ");
    }
 
 
