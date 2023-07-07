@@ -97,9 +97,8 @@ where T: IntoIterator<Item = char> {
 
 #[cfg(test)]
 mod tests {
+   use super::*;
    use pretty_assertions::{assert_eq, /*assert_ne*/};
-
-   use crate::charwidthmap::CharWidthMap;
 
    #[test]
    fn test_counts() {
