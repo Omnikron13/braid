@@ -49,7 +49,6 @@ fn byte_index(c: &mut Criterion) {
          assert_eq!(a, b);
       }
 
-      /*
       g.bench_function(format!("byte_manual-{f}"), |bench| {
          bench.iter(|| {
             let i = random::<usize>() % (index.count() + 0);
@@ -59,7 +58,6 @@ fn byte_index(c: &mut Criterion) {
             };
          });
       });
-      */
 
       g.bench_function(format!("byte_index-{f}"), |bench| {
          bench.iter(|| {
