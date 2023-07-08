@@ -27,6 +27,13 @@ pub struct Run {
    count: usize,
 }
 
+impl Run {
+   #[inline]
+   pub fn byte_count(&self) -> usize {
+      return self.width as usize * self.count;
+   }
+}
+
 impl CharWidth {
    /// Create a new empty CharWidth.
    ///
@@ -69,7 +76,7 @@ impl CharWidth {
    /// Get the total byte count of the indexed string.
    pub fn count_bytes(&self) -> usize {
       // TODO: delegate the calculation to Run
-      return self.widths.iter().fold(0, |a, x| a + x.width as usize * x.count);
+      return self.widths.iter().fold(0, |a, x| a + x.byte_count());
    }
 
    /// Get the byte index from a char index.
@@ -80,7 +87,7 @@ impl CharWidth {
             return char_index * r.width as usize + offset;
          }
          char_index -= r.count;
-         offset += r.width as usize * r.count;
+         offset += r.byte_count();
       }
       panic!("char_index out of bounds..? index: {char_index}, offset: {offset}");
    }
