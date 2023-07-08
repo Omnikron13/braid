@@ -18,7 +18,13 @@ use std::iter::{FromIterator, IntoIterator};
 /// This is the primary struct which creates, and provides access to, the index.
 #[derive(Debug)]
 pub struct CharWidth {
-   widths: Vec<(u8, usize)>,
+   widths: Vec<Run>,
+}
+
+// TODO: seriously ponder the dodgy name on this one...
+struct Run {
+   width: u8,
+   count: usize,
 }
 
 impl CharWidth {
@@ -38,10 +44,10 @@ impl CharWidth {
    /// This should only need to be used directly if building your own index over an arbitrary sequence.
    pub fn push(&mut self, c: char) {
       let w = c.len_utf8() as u8;
-      if self.widths.len() == 0 || self.widths.last().unwrap().0 != w {
-         self.widths.push((w, 1));
+      if self.widths.len() == 0 || self.widths.last().unwrap().width != w {
+         self.widths.push(Run{ width: w, count: 1 });
       } else {
-         self.widths.last_mut().unwrap().1 += 1;
+         self.widths.last_mut().unwrap().count += 1;
       }
    }
 
@@ -51,30 +57,30 @@ impl CharWidth {
    }
 
    /// Provides an iterator over the raw width:count paits.
-   pub fn iter(&self) -> impl Iterator<Item = (u8, usize)> + '_ {
-      return self.widths.iter().copied();
+   pub fn iter(&self) -> impl Iterator<Item = &Run> + '_ {
+      return self.widths.iter();
    }
 
    /// Get the total char count of the indexed string.
    pub fn count(&self) -> usize {
-      return self.widths.iter().map(|(_, n)| n).sum();
+      return self.widths.iter().fold(0, |a, x| a + x.count);
    }
 
    /// Get the total byte count of the indexed string.
    pub fn count_bytes(&self) -> usize {
-      return self.widths.iter().map(|(w, n)| *w as usize * n).sum();
+      // TODO: delegate the calculation to Run
+      return self.widths.iter().fold(0, |a, x| a + x.width as usize * x.count);
    }
 
    /// Get the byte index from a char index.
    pub fn byte_index(&self, mut char_index: usize) -> usize {
       let mut offset = 0;
-      for (w, n) in self.widths.iter() {
-         let w = *w as usize;
-         if n > &char_index {
-            return char_index * w + offset;
+      for r in self.widths.iter() {
+         if r.count > char_index {
+            return char_index * r.width as usize + offset;
          }
-         char_index -= n;
-         offset += w * n;
+         char_index -= r.count;
+         offset += r.width as usize * r.count;
       }
       panic!("char_index out of bounds..? index: {char_index}, offset: {offset}");
    }
@@ -146,7 +152,7 @@ mod tests {
       let m = s.chars().collect::<super::CharWidth>();
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
-      assert_eq!(m.iter().map(|(w, n)| format!("({w}:{n})")).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
+      assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
    }
 
    // Yeah, it's a bit of a knockoff... But apparently this is needed...
@@ -157,6 +163,6 @@ mod tests {
       let m = CharWidth::from(s.chars());
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
-      assert_eq!(m.iter().map(|(w, n)| format!("({w}:{n})")).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
+      assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
    }
 }
