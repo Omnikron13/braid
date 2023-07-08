@@ -70,4 +70,4 @@
 #![feature(test)]
 extern crate test;
 pub mod strand;
-pub mod charwidthindex;
+pub mod index;

@@ -2,13 +2,13 @@ extern crate criterion;
 
 use rand::random;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use braid::charwidthindex::CharWidthIndex;
+use braid::index::char_width::CharWidth;
 
 fn count(c: &mut Criterion) {
    let mut group = c.benchmark_group("count_chars");
 
    let mut run = |name, data: &str| {
-       let index: CharWidthIndex = data.chars().collect();
+       let index: CharWidth = data.chars().collect();
        group.bench_function(format!("{name}-count_manual"), |bench| {
           bench.iter(|| {
              let _ = black_box(&data).chars().count();
@@ -36,7 +36,7 @@ fn byte_index(c: &mut Criterion) {
    let mut run = |f| {
       let path = format!("benches/data/{f}");
       let data = std::fs::read_to_string(path).unwrap();
-      let index: CharWidthIndex = data.chars().collect();
+      let index: CharWidth = data.chars().collect();
 
       // Sanity check
       for _ in 0..1024 {

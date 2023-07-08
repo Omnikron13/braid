@@ -16,19 +16,20 @@
 use std::iter::{FromIterator, IntoIterator};
 
 /// This is the primary struct which creates, and provides access to, the index.
-pub struct CharWidthIndex {
+#[derive(Debug)]
+pub struct CharWidth {
    widths: Vec<(u8, usize)>,
 }
 
-impl CharWidthIndex {
-   /// Create a new empty CharWidthIndex.
+impl CharWidth {
+   /// Create a new empty CharWidth.
    ///
    /// You should only need to use this directly if you need to index an arbitrary sequence
    /// of chars; other methods are provided for most conmon use cases, most notably from_iter,
    /// which can be used by collect() in an interator chain.
    // TODO: list some of the common cases, when they are properly implemented.
-   pub fn new() -> CharWidthIndex {
-      return CharWidthIndex {
+   pub fn new() -> CharWidth {
+      return CharWidth {
          widths: Vec::new(),
       }
    }
@@ -82,23 +83,23 @@ impl CharWidthIndex {
 }
 
 
-impl FromIterator<char> for CharWidthIndex {
-   /// Fold any arbitrary Iterator<Item = char> into a CharWidthIndex.
+impl FromIterator<char> for CharWidth {
+   /// Fold any arbitrary Iterator<Item = char> into a CharWidth.
    ///
-   /// This is the most general way to create a CharWidthIndex, and the favoured way to do so
+   /// This is the most general way to create a CharWidth, and the favoured way to do so
    /// unless you have actual compelling reasons to do otherwise.
    ///
    /// # Examples
    /// ```
-   /// use braid::charwidthindex::CharWidthIndex;
+   /// use braid::index::char_width::CharWidth;
    ///
-   /// let map: CharWidthIndex = "abcⓐⓑⓒ".chars().collect();
+   /// let map: CharWidth = "abcⓐⓑⓒ".chars().collect();
    /// assert_eq!(map.count(), 6);
    /// assert_eq!(map.count_bytes(), 12);
    /// ```
    fn from_iter<T>(iter: T) -> Self
    where T: IntoIterator<Item = char> {
-      iter.into_iter().fold(CharWidthIndex::new(), |mut m, c| {
+      iter.into_iter().fold(CharWidth::new(), |mut m, c| {
          m.push(c);
          return m;
       })
@@ -107,7 +108,7 @@ impl FromIterator<char> for CharWidthIndex {
 
 
 /// Enable ::from() convesion for anything that can be converted into an Iterator<Item = char>.
-impl<T> From<T> for CharWidthIndex
+impl<T> From<T> for CharWidth
 where T: IntoIterator<Item = char> {
    fn from(iter: T) -> Self {
       return iter.into_iter().collect();
@@ -122,7 +123,7 @@ mod tests {
 
    #[test]
    fn test_counts() {
-      let mut m = super::CharWidthIndex::new();
+      let mut m = super::CharWidth::new();
       assert_eq!(m.count(), 0);
       assert_eq!(m.count_bytes(), 0);
       m.push('a');
@@ -142,7 +143,7 @@ mod tests {
    #[test]
    fn test_from_iter() {
       let s = "test ‣ string ‣ alpha";
-      let m = s.chars().collect::<super::CharWidthIndex>();
+      let m = s.chars().collect::<super::CharWidth>();
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|(w, n)| format!("({w}:{n})")).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
@@ -153,7 +154,7 @@ mod tests {
    #[test]
    fn test_from_intoiterator() {
       let s = "test ‣ string ‣ alpha";
-      let m = CharWidthIndex::from(s.chars());
+      let m = CharWidth::from(s.chars());
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|(w, n)| format!("({w}:{n})")).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
