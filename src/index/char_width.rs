@@ -22,7 +22,7 @@ pub struct CharWidth {
 }
 
 // TODO: seriously ponder the dodgy name on this one...
-struct Run {
+pub struct Run {
    width: u8,
    count: usize,
 }
