@@ -16,18 +16,19 @@
 use std::iter::{FromIterator, IntoIterator};
 
 /// This is the primary struct which creates, and provides access to, the index.
-#[derive(Debug)]
 pub struct CharWidth {
    widths: Vec<Run>,
 }
 
 // TODO: seriously ponder the dodgy name on this one...
+/// TODO: document Run struct
 pub struct Run {
    width: u8,
    count: usize,
 }
 
 impl Run {
+    /// TODO: document Run::byte_count
    #[inline]
    pub fn byte_count(&self) -> usize {
       return self.width as usize * self.count;
