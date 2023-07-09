@@ -79,9 +79,37 @@ fn byte_index(c: &mut Criterion) {
    run("cyrillic_01");
 }
 
+
+fn push(c: &mut Criterion) {
+   let mut g = c.benchmark_group("push");
+   g
+      .sample_size(100000)
+      .measurement_time(std::time::Duration::from_secs(45))
+      .warm_up_time(std::time::Duration::from_secs(15));
+
+   for n in [1024, 2048, 4096] {
+      let chars: Vec<char> = (0..n).map(|_| random::<char>()).collect();
+      let cyrillic: Vec<char> = include_str!("data/cyrillic_01").chars().collect();
+      for (name, input) in [("rand", chars), ("uniform", vec!('~')), ("alternating", vec!['~', '💖']), ("cyrillic", cyrillic)].iter() {
+         g.throughput(Throughput::Bytes(n as u64));
+         g.bench_with_input(BenchmarkId::new(*name, n), input, |b, input| {
+            b.iter(|| {
+               let mut m = CharWidth::new();
+               let mut char_iter = input.iter().cycle();
+               for _ in 0..n {
+                  m.push(*char_iter.next().unwrap());
+               }
+            });
+         });
+      }
+   }
+   g.finish();
+}
+
 criterion_group!(
    benches,
    count,
    byte_index,
+   push,
 );
 criterion_main!(benches);
