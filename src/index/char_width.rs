@@ -39,6 +39,12 @@ impl Run {
    pub fn byte_count(&self) -> usize {
       return self.width as usize * self.count;
    }
+
+   /// TODO: document Run::width_eq
+   #[inline]
+   pub fn width_eq(&self, c: char) -> bool {
+      return self.width == c.len_utf8() as u8;
+   }
 }
 
 impl CharWidth {
