@@ -28,7 +28,7 @@ pub struct Run {
 }
 
 impl Run {
-    /// TODO: document Run::byte_count
+   /// TODO: document Run::byte_count
    #[inline]
    pub fn byte_count(&self) -> usize {
       return self.width as usize * self.count;
