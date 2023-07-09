@@ -22,13 +22,14 @@ fn count(c: &mut Criterion) {
        assert_eq!(index.count(), data.chars().count());
    };
 
-   run("small", include_str!("data/small.txt"));
-   run("medium", include_str!("data/medium.txt"));
-   run("large", include_str!("data/large.txt"));
+   run("small", include_str!("data/small"));
+   run("medium", include_str!("data/medium"));
+   run("large", include_str!("data/large"));
    run("unicode-1", include_str!("data/unicode_01"));
    run("unicode-2", include_str!("data/unicode_02"));
    run("cyrillic", include_str!("data/cyrillic_01"));
 }
+
 
 fn byte_index(c: &mut Criterion) {
    let mut g = c.benchmark_group("byte_index");
@@ -68,10 +69,10 @@ fn byte_index(c: &mut Criterion) {
 
    };
 
-   run("tiny.txt");
-   run("small.txt");
-   run("medium.txt");
-   run("large.txt");
+   run("tiny");
+   run("small");
+   run("medium");
+   run("large");
    run("unicode_trivial");
    run("unicode_01");
    run("unicode_02");
