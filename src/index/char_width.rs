@@ -28,6 +28,12 @@ pub struct Run {
 }
 
 impl Run {
+   /// TODO: document Run::new
+   #[inline]
+   pub fn new(c: char) -> Run {
+      return Run { width: c.len_utf8() as u8, count: 1 };
+   }
+
    /// TODO: document Run::byte_count
    #[inline]
    pub fn byte_count(&self) -> usize {
