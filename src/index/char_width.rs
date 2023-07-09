@@ -63,12 +63,13 @@ impl CharWidth {
    /// Add a single char to the end of the index.
    /// This should only need to be used directly if building your own index over an arbitrary sequence.
    pub fn push(&mut self, c: char) {
-      let w = c.len_utf8() as u8;
-      if self.widths.len() == 0 || self.widths.last().unwrap().width != w {
-         self.widths.push(Run{ width: w, count: 1 });
-      } else {
-         self.widths.last_mut().unwrap().count += 1;
+      if let Some(x) = self.widths.last_mut() {
+         if x.width_eq(c) {
+            x.count += 1;
+            return;
+         }
       }
+      self.widths.push(Run::new(c));
    }
 
    /// Get the size of the index itself.
