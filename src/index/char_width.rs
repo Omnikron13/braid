@@ -24,7 +24,7 @@ pub struct CharWidth {
 /// TODO: document Run struct
 pub struct Run {
    width: u8,
-   count: usize,
+   count: u32,
 }
 
 impl Run {
@@ -37,7 +37,7 @@ impl Run {
    /// TODO: document Run::byte_count
    #[inline]
    pub fn byte_count(&self) -> usize {
-      return self.width as usize * self.count;
+      return self.width as usize * self.count as usize;
    }
 
    /// TODO: document Run::width_eq
@@ -84,7 +84,7 @@ impl CharWidth {
 
    /// Get the total char count of the indexed string.
    pub fn count(&self) -> usize {
-      return self.widths.iter().fold(0, |a, x| a + x.count);
+      return self.widths.iter().fold(0, |a, x| a + x.count as usize);
    }
 
    /// Get the total byte count of the indexed string.
@@ -97,10 +97,10 @@ impl CharWidth {
    pub fn byte_index(&self, mut char_index: usize) -> usize {
       let mut offset = 0;
       for r in self.widths.iter() {
-         if r.count > char_index {
+         if r.count as usize > char_index {
             return char_index * r.width as usize + offset;
          }
-         char_index -= r.count;
+         char_index -= r.count as usize;
          offset += r.byte_count();
       }
       panic!("char_index out of bounds..? index: {char_index}, offset: {offset}");
