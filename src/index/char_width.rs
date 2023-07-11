@@ -95,18 +95,21 @@ impl CharWidth {
 
    /// Get the byte index from a char index.
    pub fn byte_index(&self, mut char_index: usize) -> usize {
-      let mut offset = 0;
-      for r in self.widths.iter() {
-         if r.count as usize > char_index {
-            return char_index * r.width as usize + offset;
-         }
-         char_index -= r.count as usize;
-         offset += r.byte_count();
-      }
-      panic!("char_index out of bounds..? index: {char_index}, offset: {offset}");
+      return self.widths.iter()
+         .scan(0, |a, x| {
+            if *a > char_index { None } else {
+               *a += x.count as usize;
+               Some(x)
+            }
+         })
+         .fold(0, move |a, x| {
+            if char_index < x.count as usize {
+               return a + char_index * x.width as usize;
+            }
+            char_index -= x.count as usize;
+            return a + x.byte_count() as usize;
+         });
    }
-   // TODO: try again for a cleaner iterator-based implementation or something...
-   //       it might be pretty clean going with take_while() and fold..?
 }
 
 
