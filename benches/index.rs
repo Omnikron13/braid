@@ -66,7 +66,6 @@ fn byte_index(c: &mut Criterion) {
             let _ = index.byte_index(i);
          });
       });
-
    };
 
    run("tiny");
