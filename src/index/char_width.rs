@@ -214,12 +214,6 @@ mod tests {
    use pretty_assertions::{assert_eq, /*assert_ne*/};
 
    #[test]
-   fn test_idx_size() {
-       println!("size of index: {}", std::mem::size_of::<CharWidthBuilder>());
-       println!("size of index: {}", std::mem::size_of::<CharWidth>());
-   }
-
-   #[test]
    fn test_counts() {
       let mut m = super::CharWidthBuilder::new();
       assert_eq!(m.count(), 0);
