@@ -6,6 +6,10 @@ use braid::index::char_width::CharWidthBuilder;
 
 fn count(c: &mut Criterion) {
    let mut g = c.benchmark_group("count_chars");
+
+   // Hangs for fucking forever doing 'warmup', despite duration claim, so just cludge away the warmup...
+   g.warm_up_time(std::time::Duration::from_nanos(1));
+
    for name in ["small", "medium", "large", "unicode_01", "unicode_02", "cyrillic_01"] {
       let path = format!("benches/data/{name}");
       let data = std::fs::read_to_string(path).unwrap();
