@@ -2,32 +2,32 @@ extern crate criterion;
 
 use rand::random;
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use braid::index::char_width::CharWidth;
+use braid::index::char_width::CharWidthBuilder;
 
 fn count(c: &mut Criterion) {
-   let mut group = c.benchmark_group("count_chars");
-
-   let mut run = |name, data: &str| {
-       let index: CharWidth = data.chars().collect();
-       group.bench_function(format!("{name}-count_manual"), |bench| {
-          bench.iter(|| {
-             let _ = black_box(&data).chars().count();
-          })
-       });
-       group.bench_function(format!("{name}-count_indexed"), |bench| {
-          bench.iter(|| {
-             let _ = index.count();
-          })
-       });
-       assert_eq!(index.count(), data.chars().count());
-   };
-
-   run("small", include_str!("data/small"));
-   run("medium", include_str!("data/medium"));
-   run("large", include_str!("data/large"));
-   run("unicode-1", include_str!("data/unicode_01"));
-   run("unicode-2", include_str!("data/unicode_02"));
-   run("cyrillic", include_str!("data/cyrillic_01"));
+   let mut g = c.benchmark_group("count_chars");
+   for name in ["small", "medium", "large", "unicode_01", "unicode_02", "cyrillic_01"] {
+      let path = format!("benches/data/{name}");
+      let data = std::fs::read_to_string(path).unwrap();
+      g.bench_with_input(BenchmarkId::new("manual", name), &data, |b, data| {
+         b.iter(|| {
+            let _ = data.chars().count();
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("indexed", name), &data, |b, data| {
+         let m = CharWidthBuilder::from_iter(data.chars());
+         b.iter(|| {
+            let _ = m.count();
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("indexed-frozen", name), &data, |b, data| {
+         let m = CharWidthBuilder::from_iter(data.chars()).freeze();
+         b.iter(|| {
+            let _ = m.count();
+         });
+      });
+   }
+   g.finish();
 }
 
 
@@ -37,7 +37,7 @@ fn byte_index(c: &mut Criterion) {
    let mut run = |f| {
       let path = format!("benches/data/{f}");
       let data = std::fs::read_to_string(path).unwrap();
-      let index: CharWidth = data.chars().collect();
+      let index: CharWidthBuilder = data.chars().collect();
 
       // Sanity check
       for _ in 0..1024 {
@@ -93,7 +93,7 @@ fn push(c: &mut Criterion) {
          g.throughput(Throughput::Bytes(n as u64));
          g.bench_with_input(BenchmarkId::new(*name, n), input, |b, input| {
             b.iter(|| {
-               let mut m = CharWidth::new();
+               let mut m = CharWidthBuilder::new();
                let mut char_iter = input.iter().cycle();
                for _ in 0..n {
                   m.push(*char_iter.next().unwrap());
