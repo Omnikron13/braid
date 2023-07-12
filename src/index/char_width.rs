@@ -13,6 +13,7 @@
 //! the entire string, char by char, to compute. This module provides a way to
 //! cache the relevant information, so this kind of operation becomes much
 //! cheaper past the initial iteration.
+use std::fmt;
 use std::iter::{FromIterator, IntoIterator};
 
 /// This is the primary struct which creates, and provides access to, the index.
@@ -23,7 +24,6 @@ pub struct CharWidthBuilder {
 
 // TODO: seriously ponder the dodgy name on this one...
 /// TODO: document Run struct
-//#[derive(Debug)]
 pub struct Run {
    width: u8,
    count: u32,
@@ -52,6 +52,12 @@ impl Run {
    #[inline]
    pub fn width_eq(&self, c: char) -> bool {
       return self.width == c.len_utf8() as u8;
+   }
+}
+
+impl fmt::Debug for Run {
+   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+      return write!(f, "{}:{}", self.width, self.count);
    }
 }
 
