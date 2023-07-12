@@ -15,11 +15,6 @@
 //! cheaper past the initial iteration.
 use std::iter::{FromIterator, IntoIterator};
 
-/// TODO: document CharWidth struct
-pub struct CharWidth {
-    widths: Box<[Run]>,
-}
-
 /// This is the primary struct which creates, and provides access to, the index.
 //#[derive(Debug)]
 pub struct CharWidthBuilder {
@@ -32,6 +27,11 @@ pub struct CharWidthBuilder {
 pub struct Run {
    width: u8,
    count: u32,
+}
+
+/// TODO: document CharWidth struct
+pub struct CharWidth {
+    widths: Box<[Run]>,
 }
 
 impl Run {
