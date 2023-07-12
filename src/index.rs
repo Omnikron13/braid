@@ -3,3 +3,8 @@
 // inelegant stutterings that rust insists on baking into module paths...
 pub mod char_width;
 pub use char_width::CharWidth;
+pub use char_width::CharWidthBuilder;
+
+trait Index {
+   fn split(&self, r: std::ops::Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized;
+}

@@ -15,6 +15,8 @@
 //! cheaper past the initial iteration.
 use std::fmt;
 use std::iter::{FromIterator, IntoIterator};
+use super::Index;
+use std::ops::Range;
 
 /// This is the primary struct which creates, and provides access to, the index.
 //#[derive(Debug)]
@@ -112,6 +114,65 @@ impl fmt::Debug for CharWidth {
    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
       return write!(f, "{:?}", self.widths);
    }
+}
+
+
+impl super::Index for CharWidth {
+   fn split(&self, mut r: std::ops::Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
+      // TODO: clean this the fuck up...
+      let (a, b) = self.widths.iter()
+         .map(|x| {
+            let a = if r.start > 0 {
+               Some(Run { width: x.width, count: std::cmp::min(x.count, r.start as u32) })
+            } else {
+               None
+            };
+            let b = if r.end < x.count as usize {
+               Some(Run { width: x.width, count: x.count - r.end as u32 })
+            } else {
+               None
+            };
+            r = r.start.saturating_sub(x.count as usize)..r.end.saturating_sub(x.count as usize);
+            return (a, b);
+         })
+         .fold((Vec::<Run>::new(), Vec::<Run>::new()), |mut a, x| {
+            if let Some(x) = x.0 { a.0.push(x); }
+            if let Some(x) = x.1 { a.1.push(x); }
+            return a;
+         });
+
+      return (
+         if a.is_empty() { None } else { Some(CharWidth{ widths: a.into_boxed_slice() }) },
+         if b.is_empty() { None } else { Some(CharWidth{ widths: b.into_boxed_slice() }) },
+      );
+   }
+}
+
+#[cfg(test)]
+#[test]
+fn split_index() {
+   let i = CharWidthBuilder::from("abc󰯬󰯯󰯲123ⅠⅡⅢ".chars()).freeze();
+   let (a, b) = i.split(0..0);
+   assert_eq!(format!("{a:?}"), "None");
+   assert_eq!(format!("{b:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
+   let (a, b) = i.split(6..6);
+   assert_eq!(format!("{a:?}"), "Some([1:3, 4:3])");
+   assert_eq!(format!("{b:?}"), "Some([1:3, 3:3])");
+   let (a, b) = i.split(0..12);
+   assert_eq!(format!("{a:?}"), "None");
+   assert_eq!(format!("{b:?}"), "None");
+   let (a, b) = i.split(12..12);
+   assert_eq!(format!("{a:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
+   assert_eq!(format!("{b:?}"), "None");
+   let (a, b) = i.split(1..11);
+   assert_eq!(format!("{a:?}"), "Some([1:1])");
+   assert_eq!(format!("{b:?}"), "Some([3:1])");
+   let (a, b) = i.split(3..9);
+   assert_eq!(format!("{a:?}"), "Some([1:3])");
+   assert_eq!(format!("{b:?}"), "Some([3:3])");
+   let (a, b) = i.split(4..8);
+   assert_eq!(format!("{a:?}"), "Some([1:3, 4:1])");
+   assert_eq!(format!("{b:?}"), "Some([1:1, 3:3])");
 }
 
 
