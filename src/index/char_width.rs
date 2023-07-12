@@ -77,7 +77,7 @@ impl CharWidth {
       return self.widths.len();
    }
 
-   /// Provides an iterator over the raw width:count paits.
+   /// Provides an iterator over the raw width:count pairs.
    pub fn iter(&self) -> impl Iterator<Item = &Run> + '_ {
       return self.widths.iter();
    }
