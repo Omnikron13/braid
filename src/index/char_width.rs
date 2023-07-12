@@ -108,6 +108,12 @@ impl CharWidth {
    }
 }
 
+impl fmt::Debug for CharWidth {
+   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+      return write!(f, "{:?}", self.widths);
+   }
+}
+
 
 impl CharWidthBuilder {
    /// Create a new empty CharWidthBuilder.
