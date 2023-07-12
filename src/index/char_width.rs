@@ -34,6 +34,7 @@ pub struct CharWidth {
     widths: Box<[Run]>,
 }
 
+
 impl Run {
    /// TODO: document Run::new
    #[inline]
