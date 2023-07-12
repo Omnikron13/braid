@@ -117,8 +117,8 @@ impl fmt::Debug for CharWidth {
 }
 
 
-impl super::Index for CharWidth {
-   fn split(&self, mut r: std::ops::Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
+impl Index for CharWidth {
+   fn split(&self, mut r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
       // TODO: clean this the fuck up...
       let (a, b) = self.widths.iter()
          .map(|x| {
