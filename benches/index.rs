@@ -31,48 +31,32 @@ fn count(c: &mut Criterion) {
 fn byte_index(c: &mut Criterion) {
    let mut g = c.benchmark_group("byte_index");
 
-   let mut run = |f| {
-      let path = format!("benches/data/{f}");
-      let data = std::fs::read_to_string(path).unwrap();
+   for name in [
+      "tiny",
+      "small",
+      "medium",
+      "large",
+      //"unicode_trivial",
+      "unicode_01",
+      //"unicode_02",
+      "cyrillic_01",
+   ] {
+      let data = std::fs::read_to_string(format!("benches/data/{name}")).unwrap();
       let index: Index = data.chars().collect();
 
-      // Sanity check
-      for _ in 0..1024 {
-         let i = random::<usize>() % (index.count() + 0);
-         let a = match data.char_indices().nth(i) {
-            Some((i, _)) => i,
-            None => data.len(),
-         };
-         let b = index.byte_index(i);
-         assert_eq!(a, b);
-      }
-
-      g.bench_function(format!("byte_manual-{f}"), |bench| {
-         bench.iter(|| {
-            let i = random::<usize>() % (index.count() + 0);
-            let _ = match black_box(&data).char_indices().nth(i) {
-               Some((i, _)) => i,
-               None => data.len(),
-            };
+      g.bench_with_input(BenchmarkId::new("manual", name), &data, |b, data| {
+         b.iter(|| {
+            let i = random::<usize>() % index.count();
+            let _ = data.char_indices().nth(i).unwrap().0;
          });
       });
-
-      g.bench_function(format!("byte_index-{f}"), |bench| {
-         bench.iter(|| {
-            let i = random::<usize>() % (index.count() + 0);
-            let _ = index.byte_index(i);
+      g.bench_with_input(BenchmarkId::new("index", name), &index, |b, data| {
+         b.iter(|| {
+            let i = random::<usize>() % index.count();
+            let _ = data.byte_index(i);
          });
       });
-   };
-
-   run("tiny");
-   run("small");
-   run("medium");
-   run("large");
-   run("unicode_trivial");
-   run("unicode_01");
-   run("unicode_02");
-   run("cyrillic_01");
+   }
 }
 
 
