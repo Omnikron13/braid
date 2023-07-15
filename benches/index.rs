@@ -77,12 +77,8 @@ fn byte_index(c: &mut Criterion) {
 
 fn push(c: &mut Criterion) {
    let mut g = c.benchmark_group("push");
-   g
-      .warm_up_time(std::time::Duration::from_secs(5))
-      .measurement_time(std::time::Duration::from_secs(15))
-      .sample_size(1000)
-   ;
-
+   g.sample_size(1000);
+   g.measurement_time(std::time::Duration::from_secs(10));
    for n in [
       1024,
       //2048,
