@@ -104,31 +104,18 @@ impl CharWidth {
 
    /// TODO: document this?
    pub fn split(&self, mut r: Range<usize>) -> (Self, Self) where Self: Sized {
-      // TODO: clean this the fuck up...
-      let (a, b) = self.widths.iter()
-         .map(|x| {
-            let a = if r.start > 0 {
-               Some(Run { width: x.width, count: std::cmp::min(x.count, r.start as u32) })
-            } else {
-               None
-            };
-            let b = if r.end < x.count as usize {
-               Some(Run { width: x.width, count: x.count - r.end as u32 })
-            } else {
-               None
-            };
-            r = r.start.saturating_sub(x.count as usize)..r.end.saturating_sub(x.count as usize);
-            return (a, b);
-         })
-         .fold((Vec::<Run>::new(), Vec::<Run>::new()), |mut a, x| {
-            if let Some(x) = x.0 { a.0.push(x); }
-            if let Some(x) = x.1 { a.1.push(x); }
-            return a;
-         });
-
-      return (
-         Self{ widths: a.into_boxed_slice() }, Self{ widths: b.into_boxed_slice() },
-      );
+      let (a, b) = self.iter().fold((Vec::<Run>::new(), Vec::<Run>::new()), |mut v, x| {
+         if r.start > 0 {
+            v.0.push(Run { width: x.width, count: std::cmp::min(x.count, r.start as u32) });
+         }
+         if r.end < x.count as usize {
+            v.1.push(Run { width: x.width, count: x.count - r.end as u32 });
+         }
+         r.start = r.start.saturating_sub(x.count as usize);
+         r.end = r.end.saturating_sub(x.count as usize);
+         return v;
+      });
+      return (Self{ widths: a.into_boxed_slice() }, Self{ widths: b.into_boxed_slice() });
    }
 }
 
