@@ -33,20 +33,20 @@ type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
 
 #[derive(Clone)]
 pub enum Strand<'a> {
-    Branch(Rc<BranchNode<'a>>),
-    Leaf(Rc<LeafNode<'a>>),
+   Branch(Rc<BranchNode<'a>>),
+   Leaf(Rc<LeafNode<'a>>),
 }
 
 pub struct BranchNode<'a> {
-    length: usize,
-    left: Strand<'a>,
-    right: Strand<'a>,
+   length: usize,
+   left: Strand<'a>,
+   right: Strand<'a>,
 }
 
 pub struct LeafNode<'a> {
    index: Index,
-    length: usize,
-    value: &'a str,
+   length: usize,
+   value: &'a str,
 }
 
 impl<'a> Strand<'a> {
@@ -280,10 +280,10 @@ impl PartialEq for Strand<'_> {
 }
 #[cfg(test)] #[test]
 fn test_eq() {
-    let st_1 = strand!("foo", "bar", strand!("baz", "qux"));
-    assert_eq!(st_1, strand!("foo", "bar", strand!("baz", "qux")));
-    assert_eq!(st_1, strand!("foo", strand!("bar", "baz"), "qux"));
-    assert_eq!(st_1, strand!("foobarbazqux"));
+   let st_1 = strand!("foo", "bar", strand!("baz", "qux"));
+   assert_eq!(st_1, strand!("foo", "bar", strand!("baz", "qux")));
+   assert_eq!(st_1, strand!("foo", strand!("bar", "baz"), "qux"));
+   assert_eq!(st_1, strand!("foobarbazqux"));
 }
 
 
