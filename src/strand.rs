@@ -296,6 +296,52 @@ impl LeafNode<'_> {
    fn byte_index(&self, i: usize) -> usize {
       self.index.byte_index(i)
    }
+
+   fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: std::ops::RangeBounds<usize> {
+      let start = match r.start_bound() {
+         std::ops::Bound::Unbounded => 0,
+         std::ops::Bound::Included(&i) => i,
+         _ => unimplemented!(),
+      };
+      let end = match r.end_bound() {
+         std::ops::Bound::Unbounded => self.value.chars().count(),
+         std::ops::Bound::Included(&i) => i,
+         std::ops::Bound::Excluded(&i) => i - 1,
+      };
+      assert!(end <= self.length, "index out of bounds");
+      return match (start, end) {
+         (0, e) if e == self.length => (None, None),
+         (0, e) => (
+            None,
+            Some(Self{ length: self.length - (e), value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+         ),
+         (s, e) if e == self.length => (
+            Some(Self{ length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+            None,
+         ),
+         (s, e) => (
+            Some(Self{ length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+            Some(Self{ length: self.length - (e), value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+         ),
+      };
+   }
+}
+
+#[cfg(test)] #[test]
+fn test_split() {
+   let leaf = LeafNode{ length: 6, value: &"abcⒶⒷⒸ" };
+   let (a, b) = leaf.split(..);
+   assert!(a.is_none());
+   assert!(b.is_none());
+   let (a, b) = leaf.split(..4);
+   assert!(a.is_none());
+   assert!(b.unwrap().value == "ⒶⒷⒸ");
+   let (a, b) = leaf.split(3..);
+   assert!(a.unwrap().value == "abc");
+   assert!(b.is_none());
+   let (a, b) = leaf.split(3..4);
+   assert!(a.unwrap().value == "abc");
+   assert!(b.unwrap().value == "ⒶⒷⒸ");
 }
 
 
