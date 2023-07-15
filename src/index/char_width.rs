@@ -65,12 +65,6 @@ impl fmt::Debug for Run {
 
 /// TODO: document CharWidth Index
 impl CharWidth {
-   /// Get the size of the index itself.
-   #[inline]
-   pub fn len(&self) -> usize {
-      return self.widths.len();
-   }
-
    /// Provides an iterator over the raw width:count pairs.
    #[inline]
    pub fn iter(&self) -> impl Iterator<Item = &Run> + '_ {
