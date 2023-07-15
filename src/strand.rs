@@ -287,13 +287,6 @@ impl PartialEq for Strand<'_> {
       return hash == hasher.digest() && self.byte_iter().eq(other.byte_iter());
    }
 }
-#[cfg(test)] #[test]
-fn test_eq() {
-   let st_1 = strand!("foo", "bar", strand!("baz", "qux"));
-   assert_eq!(st_1, strand!("foo", "bar", strand!("baz", "qux")));
-   assert_eq!(st_1, strand!("foo", strand!("bar", "baz"), "qux"));
-   assert_eq!(st_1, strand!("foobarbazqux"));
-}
 
 
 // Strand should be hashable not only for common use cases like hash maps, but perhaps
@@ -344,41 +337,6 @@ impl LeafNode<'_> {
    }
 }
 
-#[cfg(test)] #[test]
-fn test_split() {
-   let s = &"abcⒶⒷⒸ";
-   let leaf = LeafNode{ index: s.chars().collect::<Index>(), length: 6, value: s };
-   let (a, b) = leaf.split(..);
-   assert!(a.is_none());
-   assert!(b.is_none());
-   let (a, b) = leaf.split(..4);
-   assert!(a.is_none());
-   assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
-   let (a, b) = leaf.split(3..);
-   assert_eq!(a.unwrap().value, "abc");
-   assert!(b.is_none());
-   let (a, b) = leaf.split(3..4);
-   assert_eq!(a.unwrap().value, "abc");
-   assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
-}
-
-
-#[cfg(test)] #[test]
-fn test_hash() {
-   let st = strand!("foo", "bar", strand!("baz", "qux"));
-   let mut h = Xxh3::new();
-   st.hash(&mut h);
-   let st_h = h.digest();
-
-   let s = "foobarbazqux";
-   let mut h = Xxh3::new();
-   s.hash(&mut h);
-   let s_h = h.digest();
-
-   assert_eq!(st.to_string(), s);
-   assert_eq!(st_h, s_h);
-}
-
 
 
 // Some lovely tests to try and catch regressions, etc.
@@ -388,13 +346,55 @@ mod tests {
    use pretty_assertions::{assert_eq, /*assert_ne*/};
 
 
+   #[cfg(test)] #[test]
+   fn test_eq() {
+      let st_1 = strand!("foo", "bar", strand!("baz", "qux"));
+      assert_eq!(st_1, strand!("foo", "bar", strand!("baz", "qux")));
+      assert_eq!(st_1, strand!("foo", strand!("bar", "baz"), "qux"));
+      assert_eq!(st_1, strand!("foobarbazqux"));
+   }
+
+   #[cfg(test)] #[test]
+   fn test_split() {
+      let s = &"abcⒶⒷⒸ";
+      let leaf = LeafNode{ index: s.chars().collect::<Index>(), length: 6, value: s };
+      let (a, b) = leaf.split(..);
+      assert!(a.is_none());
+      assert!(b.is_none());
+      let (a, b) = leaf.split(..4);
+      assert!(a.is_none());
+      assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
+      let (a, b) = leaf.split(3..);
+      assert_eq!(a.unwrap().value, "abc");
+      assert!(b.is_none());
+      let (a, b) = leaf.split(3..4);
+      assert_eq!(a.unwrap().value, "abc");
+      assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
+   }
+
+
+   #[cfg(test)] #[test]
+   fn test_hash() {
+      let st = strand!("foo", "bar", strand!("baz", "qux"));
+      let mut h = Xxh3::new();
+      st.hash(&mut h);
+      let st_h = h.digest();
+
+      let s = "foobarbazqux";
+      let mut h = Xxh3::new();
+      s.hash(&mut h);
+      let s_h = h.digest();
+
+      assert_eq!(st.to_string(), s);
+      assert_eq!(st_h, s_h);
+   }
+
    #[test]
    fn test_macro() {
       let st = strand!("foo", strand!("bar", "baz"), "qux");
       assert_eq!(format!("{st}"), "foobarbazqux");
       assert_eq!(format!("{st:?}"), "['foo'  [['bar'  'baz']  'qux']]");
    }
-
 
    #[test]
    fn test_to_string() {
@@ -415,7 +415,6 @@ mod tests {
       assert_eq!(st.to_string(), "[[[=foo:~:bar=]]]");
    }
 
-
    #[test]
    fn test_insert_trivial() {
       let s = "Hello, world!";
@@ -427,7 +426,6 @@ mod tests {
       println!("{:?}", n);
    }
 
-
    // Test inserting into a leaf comprised of multi-byte characters
    #[test]
    fn test_insert_unicode() {
@@ -436,7 +434,6 @@ mod tests {
       assert_eq!(st.insert("-", 2).to_string(), "ⅠⅡ-ⅢⅣ");
       assert_eq!(st.insert("-", 4).to_string(), "ⅠⅡⅢⅣ-");
    }
-
 
    // Test removing from a leaf comprised of multi-byte characters
    #[test]
@@ -448,7 +445,6 @@ mod tests {
       assert_eq!(st.remove(3, 1).to_string(), "ⅠⅡⅢⅤ");
       assert_eq!(st.remove(4, 1).to_string(), "ⅠⅡⅢⅣ");
    }
-
 
    // Sweep a removal of 2, 4, 8, and 16 chars across a reasonably nested test strand
    #[test]
@@ -489,7 +485,6 @@ mod tests {
 
       return Ok(());
    }
-
 
    // Remove all characters from leaf node
    #[test]
@@ -739,7 +734,6 @@ mod tests {
       assert_eq!(iter.collect::<String>(), "foo:~:bar");
    }
 
-
    // TODO: add sub-tests for more complex usage?
    #[test]
    fn test_findchar_iter() {
@@ -750,7 +744,6 @@ mod tests {
       println!("newlines at: {:?}", v);
       assert_eq!(v, vec![4, 9, 13]);
    }
-
 
    #[test]
    fn test_line_iter() {
