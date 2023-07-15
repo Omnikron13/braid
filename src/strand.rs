@@ -73,6 +73,7 @@ impl<'a> Strand<'a> {
 
 
    // Insert string at given (char) index
+   #[inline]
    pub fn insert(&self, s: &'a str, i: usize) -> Strand<'a> {
       // Short circuit for the edge case of an 'empty' leaf
       if self.length() == 0 {
@@ -115,6 +116,7 @@ impl<'a> Strand<'a> {
 
 
    // Remove substring of length n starting at (char) index i
+   #[inline]
    pub fn remove(&self, i: usize, n: usize) -> Strand<'a> {
       assert!(i < self.length(), "Index out of bounds");
       assert!(i + n <= self.length(), "Strand doesn't have enough characters");
