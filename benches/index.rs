@@ -30,6 +30,7 @@ fn count(c: &mut Criterion) {
 
 fn byte_index(c: &mut Criterion) {
    let mut g = c.benchmark_group("byte_index");
+   g.sample_size(1000);
 
    for name in [
       "tiny",
