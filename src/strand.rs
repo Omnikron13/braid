@@ -757,7 +757,6 @@ mod tests {
       assert_eq!(v, vec!["this", "text", "has", "a", "few", "newlines"]);
    }
 
-
    #[test]
    fn test_byte_iter() {
       let st = strand!("a", "b", strand!("c", "d"), "e", strand!("f", "g"));
