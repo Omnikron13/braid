@@ -93,13 +93,17 @@ impl<'a> Strand<'a> {
             )} else if i == leaf.length {(
                Strand::Leaf(leaf.clone()),
                Strand::new_leaf(s),
-            )} else {(
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.byte_index(i))}),
-               Strand::new_branch(
-                  Strand::new_leaf(s),
-                  Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.byte_index(i)..)}),
-               ),
-            )}
+            )} else {
+               // TODO: clean up
+               let (a, b) = leaf.split(i..=i);
+               let a = Rc::new(a.unwrap());
+               let b = Rc::new(b.unwrap());
+               let c = Strand::new_leaf(s);
+               (
+                  Strand::Leaf(a),
+                  Strand::Branch(Rc::new(BranchNode{length: c.length() + b.length, left: c, right: Strand::Leaf(b)})),
+               )
+            }
          },
       };
 
