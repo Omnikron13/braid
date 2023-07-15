@@ -15,7 +15,7 @@
 //! cheaper past the initial iteration.
 use std::fmt;
 use std::iter::{FromIterator, IntoIterator};
-use super::Index;
+use super::{Index, IndexBuilder};
 use std::ops::Range;
 
 // TODO: seriously ponder the dodgy name on this one...
@@ -150,34 +150,10 @@ impl Index for CharWidth {
 
 
 impl CharWidthBuilder {
-   /// Create a new empty CharWidthBuilder.
-   ///
-   /// You should only need to use this directly if you need to index an arbitrary sequence
-   /// of chars; other methods are provided for most conmon use cases, most notably from_iter,
-   /// which can be used by collect() in an interator chain.
-   // TODO: list some of the common cases, when they are properly implemented.
-   pub fn new() -> CharWidthBuilder {
-      return CharWidthBuilder {
-         widths: Vec::new(),
-      }
-   }
-
-   /// Add a single char to the end of the index.
-   /// This should only need to be used directly if building your own index over an arbitrary sequence.
-   pub fn push(&mut self, c: char) {
-      if let Some(x) = self.widths.last_mut() {
-         if x.width_eq(c) {
-            x.count += 1;
-            return;
-         }
-      }
-      self.widths.push(Run::new(c));
-   }
-
    /// Get the size of the index itself.
-   pub fn len(&self) -> usize {
-      return self.widths.len();
-   }
+   //pub fn len(&self) -> usize {
+   //   return self.widths.len();
+   //}
 
    /// Provides an iterator over the raw width:count pairs.
    pub fn iter(&self) -> impl Iterator<Item = &Run> + '_ {
@@ -212,9 +188,36 @@ impl CharWidthBuilder {
             return a + x.byte_count() as usize;
          });
    }
+}
+
+
+impl IndexBuilder<CharWidth> for CharWidthBuilder {
+   /// Create a new empty CharWidthBuilder.
+   ///
+   /// You should only need to use this directly if you need to index an arbitrary sequence
+   /// of chars; other methods are provided for most conmon use cases, most notably from_iter,
+   /// which can be used by collect() in an interator chain.
+   // TODO: list some of the common cases, when they are properly implemented.
+   fn new() -> CharWidthBuilder {
+      return CharWidthBuilder {
+         widths: Vec::new(),
+      }
+   }
+
+   /// Add a single char to the end of the index.
+   /// This should only need to be used directly if building your own index over an arbitrary sequence.
+   fn push(&mut self, c: char) {
+      if let Some(x) = self.widths.last_mut() {
+         if x.width_eq(c) {
+            x.count += 1;
+            return;
+         }
+      }
+      self.widths.push(Run::new(c));
+   }
 
    /// TODO: document CharWidthBuilder::freeze
-   pub fn freeze(self) -> CharWidth {
+   fn freeze(self) -> CharWidth {
       return CharWidth {
           widths: Box::from(self.widths),
       };
