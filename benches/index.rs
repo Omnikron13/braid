@@ -2,7 +2,6 @@ extern crate criterion;
 
 use rand::random;
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use braid::index::char_width::CharWidthBuilder;
 use braid::index::{Index, IndexBuilder};
 
 fn count(c: &mut Criterion) {
@@ -93,7 +92,7 @@ fn push(c: &mut Criterion) {
          g.throughput(Throughput::Bytes(n as u64));
          g.bench_with_input(BenchmarkId::new(*name, n), input, |b, input| {
             b.iter(|| {
-               let mut m = CharWidthBuilder::new();
+               let mut m = IndexBuilder::new();
                let mut char_iter = input.iter().cycle();
                for _ in 0..n {
                   m.push(*char_iter.next().unwrap());
