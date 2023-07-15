@@ -7,15 +7,19 @@
 //! This module provides an index of newlines in the string.
 use std::ops::Range;
 
+/// TODO: document
 pub struct Newline {
    index: Box<[usize]>,
 }
 
 impl Newline {
+   /// TODO: document
+   #[inline]
    pub fn iter(&self) -> impl Iterator<Item=usize> + '_ {
       self.index.iter().copied()
    }
 
+   /// TODO: document
    pub fn split(&self, r: Range<usize>) -> (Self, Self) where Self: Sized {
       let s = self.index.iter().take_while(|&q| q <= &r.start).count();
       let e = self.index.iter().take_while(|&q| q < &r.end).count();
@@ -27,16 +31,19 @@ impl Newline {
 }
 
 
+/// TODO: document
 pub struct NewlineBuilder {
    count: usize,
    index: Vec<usize>,
 }
 
 impl NewlineBuilder {
+   /// TODO: document
    pub fn new() -> Self {
       Self { count: 0, index: vec![] }
    }
 
+   /// TODO: document
    pub fn push(&mut self, c: char) {
       if c == '\n' {
          self.index.push(self.count);
@@ -44,6 +51,7 @@ impl NewlineBuilder {
       self.count += 1;
    }
 
+   /// TODO: document
    pub fn freeze(self) -> Newline {
       return Newline{ index: self.index.into_boxed_slice() };
    }
