@@ -220,7 +220,7 @@ mod tests {
    use pretty_assertions::{assert_eq, /*assert_ne*/};
 
    #[test]
-   fn test_counts() {
+   fn counts() {
       let mut m = super::CharWidthBuilder::new();
       m.push('a');
       m.push('Č');
@@ -232,7 +232,7 @@ mod tests {
    }
 
    #[test]
-   fn test_from_iter() {
+   fn from_iter() {
       let s = "test ‣ string ‣ alpha";
       let m = s.chars().collect::<super::CharWidthBuilder>().freeze();
       assert_eq!(m.count(), 21);
@@ -243,7 +243,7 @@ mod tests {
    // Yeah, it's a bit of a knockoff... But apparently this is needed...
    // TODO: merge tests
    #[test]
-   fn test_from_intoiterator() {
+   fn from_intoiterator() {
       let s = "test ‣ string ‣ alpha";
       let m = CharWidthBuilder::from(s.chars()).freeze();
       assert_eq!(m.count(), 21);
