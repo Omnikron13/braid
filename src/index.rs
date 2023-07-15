@@ -5,6 +5,6 @@ pub mod char_width;
 pub use char_width::CharWidth;
 pub use char_width::CharWidthBuilder;
 
-trait Index {
+pub trait Index {
    fn split(&self, r: std::ops::Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized;
 }
