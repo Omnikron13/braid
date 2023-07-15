@@ -1,6 +1,5 @@
 // These benchmarks were lifted from ropey, to compare and sanity check our performance.
 // Consequently, they should be considered as licensed under the MIT license.
-
 extern crate criterion;
 extern crate rand;
 
@@ -9,8 +8,6 @@ use rand::random;
 use braid::strand::Strand;
 
 const TEXT: &str = include_str!("data/large");
-const INSERT_TEXT: &str = include_str!("data/small");
-
 
 fn insert(c: &mut Criterion) {
    let mut g = c.benchmark_group("insert");
@@ -19,7 +16,7 @@ fn insert(c: &mut Criterion) {
    for (name, data) in [
       ("small", "a"),
       ("medium", "This is some text."),
-      ("large", INSERT_TEXT),
+      ("large", include_str!("data/small")),
    ].iter() {
       g.bench_with_input(BenchmarkId::new("random", name), &data, |b, data| {
          let mut rope = Strand::new_leaf(TEXT);
@@ -51,7 +48,6 @@ fn insert(c: &mut Criterion) {
    }
 }
 
-
 fn insert_after_clone(c: &mut Criterion) {
    c.bench_function("insert_after_clone", |bench| {
       let rope = Strand::new_leaf(TEXT);
@@ -68,7 +64,6 @@ fn insert_after_clone(c: &mut Criterion) {
       })
    });
 }
-
 
 criterion_group!(
    benches,
