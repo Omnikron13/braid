@@ -37,14 +37,12 @@ pub enum Strand<'a> {
     Leaf(Rc<LeafNode<'a>>),
 }
 
-#[derive(Debug)]
 pub struct BranchNode<'a> {
     length: usize,
     left: Strand<'a>,
     right: Strand<'a>,
 }
 
-#[derive(Debug)]
 pub struct LeafNode<'a> {
    index: Index,
     length: usize,
