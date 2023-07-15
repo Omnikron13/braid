@@ -47,15 +47,6 @@ fn insert_small(c: &mut Criterion) {
 }
 
 
-// These benchmarks have no real equivalent, as Strand doesn't have single 'char' insertion functionality.
-/*
-fn insert_char(c: &mut Criterion) {
-   let mut group = c.benchmark_group("insert_char");
-   // -- SNIP -- //
-}
-*/
-
-
 fn insert_medium(c: &mut Criterion) {
    let mut group = c.benchmark_group("insert_medium");
 
