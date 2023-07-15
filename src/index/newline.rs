@@ -16,12 +16,12 @@ impl Newline {
       self.index.iter().copied()
    }
 
-   pub fn split(&self, r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
+   pub fn split(&self, r: Range<usize>) -> (Self, Self) where Self: Sized {
       let s = self.index.iter().take_while(|&q| q <= &r.start).count();
       let e = self.index.iter().take_while(|&q| q < &r.end).count();
       (
-         Some(Newline{index: unsafe{ self.index.get_unchecked(..s) }.into()}),
-         Some(Newline{index: unsafe{ self.index.get_unchecked(e..) }.into()}),
+         Newline{index: unsafe{ self.index.get_unchecked(..s) }.into()},
+         Newline{index: unsafe{ self.index.get_unchecked(e..) }.into()},
       )
    }
 }
@@ -61,6 +61,6 @@ fn test_newline_index() {
    let index: Newline = builder.freeze();
    assert_eq!(format!("{:?}", index.index), "[3, 7, 11]");
    let (a, b) = index.split(3..8);
-   assert_eq!(format!("{:?}", a.unwrap().index), "[3]");
-   assert_eq!(format!("{:?}", b.unwrap().index), "[11]");
+   assert_eq!(format!("{:?}", a.index), "[3]");
+   assert_eq!(format!("{:?}", b.index), "[11]");
 }

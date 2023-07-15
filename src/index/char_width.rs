@@ -109,7 +109,7 @@ impl CharWidth {
    }
 
    /// TODO: document this?
-   pub fn split(&self, mut r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
+   pub fn split(&self, mut r: Range<usize>) -> (Self, Self) where Self: Sized {
       // TODO: clean this the fuck up...
       let (a, b) = self.widths.iter()
          .map(|x| {
@@ -133,8 +133,7 @@ impl CharWidth {
          });
 
       return (
-         if a.is_empty() { None } else { Some(CharWidth{ widths: a.into_boxed_slice() }) },
-         if b.is_empty() { None } else { Some(CharWidth{ widths: b.into_boxed_slice() }) },
+         Self{ widths: a.into_boxed_slice() }, Self{ widths: b.into_boxed_slice() },
       );
    }
 }
