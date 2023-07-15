@@ -2,8 +2,11 @@
 // the accepted way to deal with the artifically long, semantically meaningless,
 // inelegant stutterings that rust insists on baking into module paths...
 pub mod char_width;
+pub mod newline;
 pub use char_width::CharWidth;
 pub use char_width::CharWidthBuilder;
+pub use newline::Newline;
+pub use newline::NewlineBuilder;
 
 pub trait Index {
    fn split(&self, r: std::ops::Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized;
