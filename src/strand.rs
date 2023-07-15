@@ -13,7 +13,7 @@ use std::iter;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use xxhash_rust::xxh3::Xxh3;
-use crate::index::{CharWidthBuilder, CharWidth};
+use crate::index::{Index, CharWidthBuilder, CharWidth};
 
 
 // Quickly constructs test strand from string literals.
