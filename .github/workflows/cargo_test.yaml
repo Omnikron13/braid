@@ -30,18 +30,3 @@ jobs:
 
       - name: Run tests
         run: cargo test
-
-   bench:
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout repo
-        uses: actions/checkout@main
- 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@master
-        with:
-           toolchain: nightly
-           override: true
- 
-      - name: Benchmark!
-        run: cargo bench
