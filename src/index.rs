@@ -3,6 +3,7 @@
 // inelegant stutterings that rust insists on baking into module paths...
 pub mod char_width;
 pub mod newline;
+
 pub use char_width::CharWidth;
 pub use char_width::CharWidthBuilder;
 pub use newline::Newline;
