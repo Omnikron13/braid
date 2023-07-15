@@ -13,6 +13,7 @@ use std::iter;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use xxhash_rust::xxh3::Xxh3;
+use crate::index::{CharWidthBuilder, CharWidth};
 
 
 // Quickly constructs test strand from string literals.
@@ -45,13 +46,14 @@ pub struct BranchNode<'a> {
 
 #[derive(Debug)]
 pub struct LeafNode<'a> {
+    index: CharWidth,
     length: usize,
     value: &'a str,
 }
 
 impl<'a> Strand<'a> {
    pub fn new_leaf(s: &'a str) -> Strand<'a> {
-      Strand::Leaf(Rc::new(LeafNode{length: s.chars().count(), value: s}))
+      Strand::Leaf(Rc::new(LeafNode{index: s.chars().collect::<CharWidthBuilder>().freeze(), length: s.chars().count(), value: s}))
    }
 
    pub fn new_branch(left: Strand<'a>, right: Strand<'a>) -> Strand<'a> {
@@ -292,7 +294,7 @@ impl Hash for Strand<'_> {
 impl LeafNode<'_> {
    // Convert a char/unicode index into a raw byte index for low level indexing/slicing/etc.
    fn byte_index(&self, i: usize) -> usize {
-      self.value.char_indices().nth(i).unwrap().0
+      self.index.byte_index(i)
    }
 }
 
