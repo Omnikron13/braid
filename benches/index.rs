@@ -11,8 +11,7 @@ fn count(c: &mut Criterion) {
    g.warm_up_time(std::time::Duration::from_nanos(1));
 
    for name in ["small", "medium", "large", "unicode_01", "unicode_02", "cyrillic_01"] {
-      let path = format!("benches/data/{name}");
-      let data = std::fs::read_to_string(path).unwrap();
+      let data = std::fs::read_to_string(format!("benches/data/{name}")).unwrap();
       g.bench_with_input(BenchmarkId::new("manual", name), &data, |b, data| {
          b.iter(|| {
             let _ = data.chars().count();
