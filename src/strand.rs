@@ -309,21 +309,16 @@ impl LeafNode<'_> {
          std::ops::Bound::Excluded(&i) => i - 1,
       };
       assert!(end <= self.length, "index out of bounds");
-      return match (start, end) {
-         (0, e) if e == self.length => (None, None),
-         (0, e) => (
-            None,
-            Some(Self{ length: self.length - (e), value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
-         ),
-         (s, e) if e == self.length => (
-            Some(Self{ length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
-            None,
-         ),
-         (s, e) => (
-            Some(Self{ length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
-            Some(Self{ length: self.length - (e), value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
-         ),
-      };
+      return (
+         match start {
+            0 => None,
+            s => Some(Self{ length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+         },
+         match end {
+            e if e == self.length => None,
+            e => Some(Self{ length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+         },
+      );
    }
 }
 
