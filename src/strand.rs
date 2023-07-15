@@ -13,7 +13,7 @@ use std::iter;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use xxhash_rust::xxh3::Xxh3;
-use crate::index::{Index, IndexBuilder, CharWidthBuilder, CharWidth};
+use crate::index::Index;
 
 
 // Quickly constructs test strand from string literals.
@@ -46,14 +46,14 @@ pub struct BranchNode<'a> {
 
 #[derive(Debug)]
 pub struct LeafNode<'a> {
-    index: CharWidth,
+   index: Index,
     length: usize,
     value: &'a str,
 }
 
 impl<'a> Strand<'a> {
    pub fn new_leaf(value: &'a str) -> Strand<'a> {
-      let index = value.chars().collect::<CharWidthBuilder>().freeze();
+      let index = value.chars().collect::<Index>();
       let length = index.count();
       Strand::Leaf(Rc::new(LeafNode{ index, length, value }))
    }
@@ -324,11 +324,11 @@ impl LeafNode<'_> {
       return (
          match start {
             0 => None,
-            s => Some(Self{ index: a_index.unwrap(), length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+            s => Some(Self{ index: a_index, length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
          },
          match end {
             e if e == self.length => None,
-            e => Some(Self{ index: b_index.unwrap(), length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+            e => Some(Self{ index: b_index, length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
          },
       );
    }
@@ -337,7 +337,7 @@ impl LeafNode<'_> {
 #[cfg(test)] #[test]
 fn test_split() {
    let s = &"abcⒶⒷⒸ";
-   let leaf = LeafNode{ index: s.chars().collect::<CharWidthBuilder>().freeze(), length: 6, value: s };
+   let leaf = LeafNode{ index: s.chars().collect::<Index>(), length: 6, value: s };
    let (a, b) = leaf.split(..);
    assert!(a.is_none());
    assert!(b.is_none());
