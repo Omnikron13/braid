@@ -11,7 +11,7 @@
 use std::fmt;
 use std::iter;
 use std::hash::{Hash, Hasher};
-use std::rc::Rc;
+use std::sync::Arc;
 use xxhash_rust::xxh3::Xxh3;
 use crate::index::Index;
 
@@ -29,12 +29,12 @@ macro_rules! strand {
 }
 
 
-type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Rc<LeafNode<'a>>> + 'a>;
+type BoxedLeafIterator<'a> = Box<dyn Iterator<Item = Arc<LeafNode<'a>>> + 'a>;
 
 #[derive(Clone)]
 pub enum Strand<'a> {
-   Branch(Rc<BranchNode<'a>>),
-   Leaf(Rc<LeafNode<'a>>),
+   Branch(Arc<BranchNode<'a>>),
+   Leaf(Arc<LeafNode<'a>>),
 }
 
 pub struct BranchNode<'a> {
@@ -53,11 +53,11 @@ impl<'a> Strand<'a> {
    pub fn new_leaf(value: &'a str) -> Strand<'a> {
       let index = value.chars().collect::<Index>();
       let length = index.count();
-      Strand::Leaf(Rc::new(LeafNode{ index, length, value }))
+      Strand::Leaf(Arc::new(LeafNode{ index, length, value }))
    }
 
    pub fn new_branch(left: Strand<'a>, right: Strand<'a>) -> Strand<'a> {
-      Strand::Branch(Rc::new(BranchNode { length: left.length() + right.length(), left, right }))
+      Strand::Branch(Arc::new(BranchNode { length: left.length() + right.length(), left, right }))
    }
 
    // Passthrough to the shared (char) length of the node
@@ -96,12 +96,12 @@ impl<'a> Strand<'a> {
             )} else {
                // TODO: clean up
                let (a, b) = leaf.split(i..=i);
-               let a = Rc::new(a.unwrap());
-               let b = Rc::new(b.unwrap());
+               let a = Arc::new(a.unwrap());
+               let b = Arc::new(b.unwrap());
                let c = Strand::new_leaf(s);
                (
                   Strand::Leaf(a),
-                  Strand::Branch(Rc::new(BranchNode{length: c.length() + b.length, left: c, right: Strand::Leaf(b)})),
+                  Strand::Branch(Arc::new(BranchNode{length: c.length() + b.length, left: c, right: Strand::Leaf(b)})),
                )
             }
          },
@@ -170,15 +170,15 @@ impl<'a> Strand<'a> {
             match leaf.split(i..=(i + n)) {
                (Some(a), Some(b)) => {
                   return Strand::new_branch(
-                     Strand::Leaf(Rc::new(a)),
-                     Strand::Leaf(Rc::new(b)),
+                     Strand::Leaf(Arc::new(a)),
+                     Strand::Leaf(Arc::new(b)),
                   );
                },
                (Some(a), None) => {
-                  return Strand::Leaf(Rc::new(a));
+                  return Strand::Leaf(Arc::new(a));
                },
                (None, Some(b)) => {
-                  return Strand::Leaf(Rc::new(b));
+                  return Strand::Leaf(Arc::new(b));
                },
                _ => unreachable!("results in empty leaf"),
             }
