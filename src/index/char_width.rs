@@ -18,12 +18,6 @@ use std::iter::{FromIterator, IntoIterator};
 use super::Index;
 use std::ops::Range;
 
-/// This is the primary struct which creates, and provides access to, the index.
-//#[derive(Debug)]
-pub struct CharWidthBuilder {
-   widths: Vec<Run>,
-}
-
 // TODO: seriously ponder the dodgy name on this one...
 /// TODO: document Run struct
 pub struct Run {
@@ -34,6 +28,12 @@ pub struct Run {
 /// TODO: document CharWidth struct
 pub struct CharWidth {
     widths: Box<[Run]>,
+}
+
+/// This is the primary struct which creates, and provides access to, the index.
+//#[derive(Debug)]
+pub struct CharWidthBuilder {
+   widths: Vec<Run>,
 }
 
 
