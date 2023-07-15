@@ -63,13 +63,13 @@ fn byte_index(c: &mut Criterion) {
       g.bench_with_input(BenchmarkId::new("manual", name), &data, |b, data| {
          b.iter(|| {
             let i = random::<usize>() % index.count();
-            let _ = data.char_indices().nth(i).unwrap().0;
+            let _ = black_box(data).char_indices().nth(i).unwrap().0;
          });
       });
-      g.bench_with_input(BenchmarkId::new("index", name), &index, |b, data| {
+      g.bench_with_input(BenchmarkId::new("indexed", name), &index, |b, data| {
          b.iter(|| {
             let i = random::<usize>() % index.count();
-            let _ = data.byte_index(i);
+            let _ = black_box(data).byte_index(i);
          });
       });
    }
