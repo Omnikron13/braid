@@ -4,120 +4,51 @@
 extern crate criterion;
 extern crate rand;
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use rand::random;
 use braid::strand::Strand;
 
 const TEXT: &str = include_str!("data/large");
-
-
-fn insert_small(c: &mut Criterion) {
-   let mut group = c.benchmark_group("insert_small");
-
-   group.bench_function("random", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert("a", random::<usize>() % len)
-      })
-   });
-
-   group.bench_function("start", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         rope = rope.insert("a", 0);
-      })
-   });
-
-   group.bench_function("middle", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert("a", len / 2);
-      })
-   });
-
-   group.bench_function("end", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert("a", len);
-      })
-   });
-}
-
-
-fn insert_medium(c: &mut Criterion) {
-   let mut group = c.benchmark_group("insert_medium");
-
-   group.bench_function("random", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert("This is some text.", random::<usize>() % len);
-      })
-   });
-
-   group.bench_function("start", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         rope = rope.insert("This is some text.", 0);
-      })
-   });
-
-   group.bench_function("middle", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert("This is some text.", len / 2);
-      })
-   });
-
-   group.bench_function("end", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert("This is some text.", len);
-      })
-   });
-}
-
-
 const INSERT_TEXT: &str = include_str!("data/small");
 
-fn insert_large(c: &mut Criterion) {
-   let mut group = c.benchmark_group("insert_large");
 
-   group.bench_function("random", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert(INSERT_TEXT, random::<usize>() % len);
-      })
-   });
+fn insert(c: &mut Criterion) {
+   let mut g = c.benchmark_group("insert");
+   g.sample_size(1000);
 
-   group.bench_function("start", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         rope = rope.insert(INSERT_TEXT, 0);
-      })
-   });
-
-   group.bench_function("middle", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert(INSERT_TEXT, len / 2);
-      })
-   });
-
-   group.bench_function("end", |bench| {
-      let mut rope = Strand::new_leaf(TEXT);
-      bench.iter(|| {
-         let len = rope.length();
-         rope = rope.insert(INSERT_TEXT, len);
-      })
-   });
+   for (name, data) in [
+      ("small", "a"),
+      ("medium", "This is some text."),
+      ("large", INSERT_TEXT),
+   ].iter() {
+      g.bench_with_input(BenchmarkId::new("random", name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(TEXT);
+         b.iter(|| {
+            let len = rope.length();
+            rope = rope.insert(data, random::<usize>() % len);
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("start", name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(TEXT);
+         b.iter(|| {
+            rope = rope.insert(data, 0);
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("middle", name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(TEXT);
+         b.iter(|| {
+            let len = rope.length();
+            rope = rope.insert(data, len / 2);
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("end", name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(TEXT);
+         b.iter(|| {
+            let len = rope.length();
+            rope = rope.insert(data, len);
+         });
+      });
+   }
 }
 
 
@@ -141,9 +72,7 @@ fn insert_after_clone(c: &mut Criterion) {
 
 criterion_group!(
    benches,
-   insert_small,
-   insert_medium,
-   insert_large,
+   insert,
    insert_after_clone
 );
 criterion_main!(benches);
