@@ -61,6 +61,12 @@ impl Index {
          }
       );
    }
+
+   /// TODO: document
+   #[inline]
+   pub fn newline_iter(&self) -> impl Iterator<Item=usize> + '_ {
+      self.newline.iter()
+   }
 }
 
 impl FromIterator<char> for Index {

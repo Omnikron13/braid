@@ -241,6 +241,27 @@ impl<'a> Strand<'a> {
    pub fn byte_iter(&'a self) -> impl Iterator<Item=u8> + 'a {
       return self.leaf_iter().flat_map(|x| x.value.bytes());
    }
+
+
+   #[inline]
+   pub fn newline_index_iter(&'a self) -> Box<dyn Iterator<Item = usize> + '_> {
+      match self {
+         Strand::Branch(branch) => {
+            Box::new(
+               branch.left
+                  .newline_index_iter()
+                  .chain(
+                     branch.right
+                        .newline_index_iter()
+                        .map(|x| x + branch.left.length())
+                  )
+            )
+         },
+         Strand::Leaf(leaf) => {
+            Box::new(leaf.index.newline_iter())
+         },
+      }
+   }
 }
 
 
@@ -761,5 +782,11 @@ mod tests {
    fn test_byte_iter() {
       let st = strand!("a", "b", strand!("c", "d"), "e", strand!("f", "g"));
       assert_eq!(st.byte_iter().collect::<Vec<u8>>(), vec![97, 98, 99, 100, 101, 102, 103]);
+   }
+
+   #[test]
+   fn test_newline_index_iter() {
+      let strand = strand!("abc\ndef", "ghi\njkl", strand!("mno\npqr", strand!("stu\nvwx", "y\nz\n123")));
+      assert_eq!(format!("{:?}", strand.newline_index_iter().collect::<Vec<usize>>()), "[3, 10, 17, 24, 29, 31]");
    }
 }
