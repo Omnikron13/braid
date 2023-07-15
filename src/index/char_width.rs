@@ -15,7 +15,6 @@
 //! cheaper past the initial iteration.
 use std::fmt;
 use std::iter::{FromIterator, IntoIterator};
-use super::{Index, IndexBuilder};
 use std::ops::Range;
 
 // TODO: seriously ponder the dodgy name on this one...
@@ -108,17 +107,9 @@ impl CharWidth {
             return a + x.byte_count() as usize;
          });
    }
-}
 
-impl fmt::Debug for CharWidth {
-   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-      return write!(f, "{:?}", self.widths);
-   }
-}
-
-
-impl Index for CharWidth {
-   fn split(&self, mut r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
+   /// TODO: document this?
+   pub fn split(&self, mut r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
       // TODO: clean this the fuck up...
       let (a, b) = self.widths.iter()
          .map(|x| {
@@ -148,57 +139,21 @@ impl Index for CharWidth {
    }
 }
 
-
-impl CharWidthBuilder {
-   /// Get the size of the index itself.
-   //pub fn len(&self) -> usize {
-   //   return self.widths.len();
-   //}
-
-   /// Provides an iterator over the raw width:count pairs.
-   pub fn iter(&self) -> impl Iterator<Item = &Run> + '_ {
-      return self.widths.iter();
-   }
-
-   /// Get the total char count of the indexed string.
-   pub fn count(&self) -> usize {
-      return self.widths.iter().fold(0, |a, x| a + x.count as usize);
-   }
-
-   /// Get the total byte count of the indexed string.
-   pub fn count_bytes(&self) -> usize {
-      // TODO: delegate the calculation to Run
-      return self.widths.iter().fold(0, |a, x| a + x.byte_count());
-   }
-
-   /// Get the byte index from a char index.
-   pub fn byte_index(&self, mut char_index: usize) -> usize {
-      return self.widths.iter()
-         .scan(0, |a, x| {
-            if *a > char_index { None } else {
-               *a += x.count as usize;
-               Some(x)
-            }
-         })
-         .fold(0, move |a, x| {
-            if char_index < x.count as usize {
-               return a + char_index * x.width as usize;
-            }
-            char_index -= x.count as usize;
-            return a + x.byte_count() as usize;
-         });
+impl fmt::Debug for CharWidth {
+   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+      return write!(f, "{:?}", self.widths);
    }
 }
 
 
-impl IndexBuilder<CharWidth> for CharWidthBuilder {
+impl CharWidthBuilder {
    /// Create a new empty CharWidthBuilder.
    ///
    /// You should only need to use this directly if you need to index an arbitrary sequence
    /// of chars; other methods are provided for most conmon use cases, most notably from_iter,
    /// which can be used by collect() in an interator chain.
    // TODO: list some of the common cases, when they are properly implemented.
-   fn new() -> CharWidthBuilder {
+   pub fn new() -> CharWidthBuilder {
       return CharWidthBuilder {
          widths: Vec::new(),
       }
@@ -206,7 +161,7 @@ impl IndexBuilder<CharWidth> for CharWidthBuilder {
 
    /// Add a single char to the end of the index.
    /// This should only need to be used directly if building your own index over an arbitrary sequence.
-   fn push(&mut self, c: char) {
+   pub fn push(&mut self, c: char) {
       if let Some(x) = self.widths.last_mut() {
          if x.width_eq(c) {
             x.count += 1;
@@ -217,7 +172,7 @@ impl IndexBuilder<CharWidth> for CharWidthBuilder {
    }
 
    /// TODO: document CharWidthBuilder::freeze
-   fn freeze(self) -> CharWidth {
+   pub fn freeze(self) -> CharWidth {
       return CharWidth {
           widths: Box::from(self.widths),
       };
@@ -236,6 +191,7 @@ impl FromIterator<char> for CharWidthBuilder {
    /// use braid::index::char_width::CharWidthBuilder;
    ///
    /// let map: CharWidthBuilder = "abcⓐⓑⓒ".chars().collect();
+   /// let map = map.freeze();
    /// assert_eq!(map.count(), 6);
    /// assert_eq!(map.count_bytes(), 12);
    /// ```
@@ -266,18 +222,11 @@ mod tests {
    #[test]
    fn test_counts() {
       let mut m = super::CharWidthBuilder::new();
-      assert_eq!(m.count(), 0);
-      assert_eq!(m.count_bytes(), 0);
       m.push('a');
-      assert_eq!(m.count(), 1);
-      assert_eq!(m.count_bytes(), 1);
       m.push('Č');
-      assert_eq!(m.count(), 2);
-      assert_eq!(m.count_bytes(), 3);
       m.push('ਇ');
-      assert_eq!(m.count(), 3);
-      assert_eq!(m.count_bytes(), 6);
       m.push('𑄗');
+      let m = m.freeze();
       assert_eq!(m.count(), 4);
       assert_eq!(m.count_bytes(), 10);
    }
@@ -285,7 +234,7 @@ mod tests {
    #[test]
    fn test_from_iter() {
       let s = "test ‣ string ‣ alpha";
-      let m = s.chars().collect::<super::CharWidthBuilder>();
+      let m = s.chars().collect::<super::CharWidthBuilder>().freeze();
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
@@ -296,7 +245,7 @@ mod tests {
    #[test]
    fn test_from_intoiterator() {
       let s = "test ‣ string ‣ alpha";
-      let m = CharWidthBuilder::from(s.chars());
+      let m = CharWidthBuilder::from(s.chars()).freeze();
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
