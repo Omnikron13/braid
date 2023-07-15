@@ -9,7 +9,8 @@ pub trait Index {
    fn split(&self, r: std::ops::Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized;
 }
 
-trait IndexBuilder {
+trait IndexBuilder<T> where T: Index {
+   fn new() -> Self;
    fn push(&mut self, c: char);
-   fn freeze(self) -> dyn Index;
+   fn freeze(self) -> T;
 }
