@@ -52,8 +52,10 @@ pub struct LeafNode<'a> {
 }
 
 impl<'a> Strand<'a> {
-   pub fn new_leaf(s: &'a str) -> Strand<'a> {
-      Strand::Leaf(Rc::new(LeafNode{index: s.chars().collect::<CharWidthBuilder>().freeze(), length: s.chars().count(), value: s}))
+   pub fn new_leaf(value: &'a str) -> Strand<'a> {
+      let index = value.chars().collect::<CharWidthBuilder>().freeze();
+      let length = index.count();
+      Strand::Leaf(Rc::new(LeafNode{ index, length, value }))
    }
 
    pub fn new_branch(left: Strand<'a>, right: Strand<'a>) -> Strand<'a> {
