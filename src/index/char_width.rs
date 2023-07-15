@@ -85,6 +85,7 @@ impl CharWidth {
    }
 
    /// Get the byte index from a char index.
+   #[inline]
    pub fn byte_index(&self, mut char_index: usize) -> usize {
       return self.widths.iter()
          .scan(0, |a, x| {
@@ -103,6 +104,7 @@ impl CharWidth {
    }
 
    /// TODO: document this?
+   #[inline]
    pub fn split(&self, mut r: Range<usize>) -> (Self, Self) where Self: Sized {
       let (a, b) = self.iter().fold((Vec::<Run>::new(), Vec::<Run>::new()), |mut v, x| {
          if r.start > 0 {
@@ -133,6 +135,7 @@ impl CharWidthBuilder {
    /// of chars; other methods are provided for most conmon use cases, most notably from_iter,
    /// which can be used by collect() in an interator chain.
    // TODO: list some of the common cases, when they are properly implemented.
+   #[inline]
    pub fn new() -> CharWidthBuilder {
       return CharWidthBuilder {
          widths: Vec::new(),
@@ -141,6 +144,7 @@ impl CharWidthBuilder {
 
    /// Add a single char to the end of the index.
    /// This should only need to be used directly if building your own index over an arbitrary sequence.
+   #[inline]
    pub fn push(&mut self, c: char) {
       if let Some(x) = self.widths.last_mut() {
          if x.width_eq(c) {
@@ -152,6 +156,7 @@ impl CharWidthBuilder {
    }
 
    /// TODO: document CharWidthBuilder::freeze
+   #[inline]
    pub fn freeze(self) -> CharWidth {
       return CharWidth {
           widths: Box::from(self.widths),
@@ -175,6 +180,7 @@ impl FromIterator<char> for CharWidthBuilder {
    /// // assert_eq!(map.count(), 6);
    /// // assert_eq!(map.count_bytes(), 12);
    /// // ```
+   #[inline]
    fn from_iter<T>(iter: T) -> Self
    where T: IntoIterator<Item = char> {
       iter.into_iter().fold(CharWidthBuilder::new(), |mut m, c| {
@@ -188,6 +194,7 @@ impl FromIterator<char> for CharWidthBuilder {
 /// Enable ::from() convesion for anything that can be converted into an Iterator<Item = char>.
 impl<T> From<T> for CharWidthBuilder
 where T: IntoIterator<Item = char> {
+   #[inline]
    fn from(iter: T) -> Self {
       return iter.into_iter().collect();
    }

@@ -50,17 +50,20 @@ pub struct LeafNode<'a> {
 }
 
 impl<'a> Strand<'a> {
+   #[inline]
    pub fn new_leaf(value: &'a str) -> Strand<'a> {
       let index = value.chars().collect::<Index>();
       let length = index.count();
       Strand::Leaf(Arc::new(LeafNode{ index, length, value }))
    }
 
+   #[inline]
    pub fn new_branch(left: Strand<'a>, right: Strand<'a>) -> Strand<'a> {
       Strand::Branch(Arc::new(BranchNode { length: left.length() + right.length(), left, right }))
    }
 
    // Passthrough to the shared (char) length of the node
+   #[inline]
    pub fn length(&self) -> usize {
       match self {
          Strand::Branch(b) => b.length,
@@ -188,6 +191,7 @@ impl<'a> Strand<'a> {
 
 
    // Return an iterator over the leaf nodes
+   #[inline]
    fn leaf_iter(&'a self) -> BoxedLeafIterator {
       match self {
          Strand::Branch(branch) => {
@@ -201,12 +205,14 @@ impl<'a> Strand<'a> {
 
 
    /// Return an iterator over the individual char's in the strand
+   #[inline]
    pub fn char_iter(&'a self) -> impl Iterator<Item=char> + 'a {
       return self.leaf_iter().flat_map(|x| x.value.chars());
    }
 
 
    // Return at iterator over the index of all occurences of a given char in the given range
+   #[inline]
    pub fn findchar_iter(&'a self, needle: char, from: usize, to: usize) -> impl Iterator<Item=usize> + 'a {
       return self.char_iter().skip(from).take(to - from).enumerate().filter_map(move |(i, x)| {
          if x == needle {
@@ -218,6 +224,7 @@ impl<'a> Strand<'a> {
 
 
    // Return an iterator over all the lines in the strand (as String's)
+   #[inline]
    pub fn line_iter(&'a self) -> impl Iterator<Item = String> + 'a {
       let mut chars = self.char_iter().peekable();
       return iter::from_fn(move || {
@@ -228,6 +235,7 @@ impl<'a> Strand<'a> {
 
 
    // Return an iterator over all the bytes that, ultimately, comprise the strand
+   #[inline]
    pub fn byte_iter(&'a self) -> impl Iterator<Item=u8> + 'a {
       return self.leaf_iter().flat_map(|x| x.value.bytes());
    }
@@ -268,6 +276,7 @@ impl fmt::Debug for Strand<'_> {
 // Enable == operator and shit
 impl Eq for Strand<'_> {}
 impl PartialEq for Strand<'_> {
+   #[inline]
    fn eq(&self, other: &Self) -> bool {
       // TODO: precompute & store the hashes
       let mut hasher = Xxh3::new();
@@ -292,6 +301,7 @@ fn test_eq() {
 // Note: this implementation treats the Strand as opaque, only caring about the underlying
 //       string that it is storing.
 impl Hash for Strand<'_> {
+   #[inline]
    fn hash<H: Hasher>(&self, state: &mut H) {
       self.byte_iter().for_each(|b| state.write_u8(b));
       // Kinda annoying hack to make it hash the same as an identical str...
@@ -302,10 +312,12 @@ impl Hash for Strand<'_> {
 
 impl LeafNode<'_> {
    // Convert a char/unicode index into a raw byte index for low level indexing/slicing/etc.
+   #[inline]
    fn byte_index(&self, i: usize) -> usize {
       self.index.byte_index(i)
    }
 
+   #[inline]
    fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: std::ops::RangeBounds<usize> {
       let start = match r.start_bound() {
          std::ops::Bound::Unbounded => 0,

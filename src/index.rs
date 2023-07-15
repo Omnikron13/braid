@@ -19,21 +19,25 @@ pub struct Index {
 
 impl Index {
    /// TODO: document
+   #[inline]
    pub fn count(&self) -> usize {
       self.char_width.count()
    }
 
    /// TODO: document
+   #[inline]
    pub fn count_bytes(&self) -> usize {
       self.char_width.count_bytes()
    }
 
    /// TODO: document
+   #[inline]
    pub fn byte_index(&self, char_index: usize) -> usize {
       return self.char_width.byte_index(char_index);
    }
 
    /// TODO: document
+   #[inline]
    pub fn split<T>(&self, r: T) -> (Index, Index) where T: RangeBounds<usize> {
       let r = match (r.start_bound(), r.end_bound()) {
          (Bound::Unbounded, Bound::Unbounded) => 0..self.count(),
@@ -73,6 +77,7 @@ impl FromIterator<char> for Index {
    /// assert_eq!(index.count(), 6);
    /// assert_eq!(index.count_bytes(), 12);
    /// ```
+   #[inline]
    fn from_iter<T>(iter: T) -> Self where T: IntoIterator<Item = char> {
       IndexBuilder::from_iter(iter).freeze()
    }
@@ -80,6 +85,7 @@ impl FromIterator<char> for Index {
 
 impl From<&str> for Index {
    /// TODO: document
+   #[inline]
    fn from(s: &str) -> Self {
       return s.chars().collect();
    }
@@ -87,6 +93,7 @@ impl From<&str> for Index {
 
 impl From<String> for Index {
    /// TODO: document
+   #[inline]
    fn from(s: String) -> Self {
       return s.chars().collect();
    }
@@ -101,6 +108,7 @@ pub struct IndexBuilder {
 
 impl IndexBuilder {
    /// TODO: document
+   #[inline]
    pub fn new() -> Self {
       Self {
          char_width: CharWidthBuilder::new(),
@@ -109,12 +117,14 @@ impl IndexBuilder {
    }
 
    /// TODO: document
+   #[inline]
    pub fn push(&mut self, c: char) {
       self.char_width.push(c);
       self.newline.push(c);
    }
 
    /// TODO: document
+   #[inline]
    pub fn freeze(self) -> Index {
       return Index {
          char_width: self.char_width.freeze(),
@@ -139,6 +149,7 @@ impl FromIterator<char> for IndexBuilder {
    /// assert_eq!(index.count(), 6);
    /// assert_eq!(index.count_bytes(), 12);
    /// ```
+   #[inline]
    fn from_iter<T>(iter: T) -> Self
    where T: IntoIterator<Item = char> {
       iter.into_iter().fold(Self::new(), |mut m, c| {
@@ -150,6 +161,7 @@ impl FromIterator<char> for IndexBuilder {
 
 impl From<&str> for IndexBuilder {
    /// TODO: document
+   #[inline]
    fn from(s: &str) -> Self {
       return s.chars().collect();
    }
@@ -157,6 +169,7 @@ impl From<&str> for IndexBuilder {
 
 impl From<String> for IndexBuilder {
    /// TODO: document
+   #[inline]
    fn from(s: String) -> Self {
       return s.chars().collect();
    }
