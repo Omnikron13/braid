@@ -1,4 +1,4 @@
-name: Rust
+name: Unit tests
 
 on:
    push:
@@ -13,7 +13,7 @@ jobs:
    build:
       runs-on: ubuntu-latest
       steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@main
 
       - name: Install latest nightly
@@ -23,11 +23,5 @@ jobs:
             override: true
             components: rustfmt, clippy
 
-      #- name: Build
-      #  run: cargo build
-
       - name: Run tests
         run: cargo test
-
-      #- name: Run benchmarks
-      #  run: cargo bench
