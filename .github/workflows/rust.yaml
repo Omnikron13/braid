@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@main
 
       - name: Install latest nightly
-        uses: actions-rs/toolchain@main
+        uses: actions-rs/toolchain@master
         with:
             toolchain: nightly
             override: true
