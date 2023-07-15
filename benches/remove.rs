@@ -19,6 +19,7 @@ fn mul_string_length(text: &str, n: usize) -> String {
 
 fn remove(c: &mut Criterion) {
    let mut g = c.benchmark_group("remove");
+   g.sample_size(1000);
    for (name, data, mult) in [
       ("small", 1, 1),
       ("medium", 15, 1),
