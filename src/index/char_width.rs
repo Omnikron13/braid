@@ -148,33 +148,6 @@ impl Index for CharWidth {
    }
 }
 
-#[cfg(test)]
-#[test]
-fn split_index() {
-   let i = CharWidthBuilder::from("abc󰯬󰯯󰯲123ⅠⅡⅢ".chars()).freeze();
-   let (a, b) = i.split(0..0);
-   assert_eq!(format!("{a:?}"), "None");
-   assert_eq!(format!("{b:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
-   let (a, b) = i.split(6..6);
-   assert_eq!(format!("{a:?}"), "Some([1:3, 4:3])");
-   assert_eq!(format!("{b:?}"), "Some([1:3, 3:3])");
-   let (a, b) = i.split(0..12);
-   assert_eq!(format!("{a:?}"), "None");
-   assert_eq!(format!("{b:?}"), "None");
-   let (a, b) = i.split(12..12);
-   assert_eq!(format!("{a:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
-   assert_eq!(format!("{b:?}"), "None");
-   let (a, b) = i.split(1..11);
-   assert_eq!(format!("{a:?}"), "Some([1:1])");
-   assert_eq!(format!("{b:?}"), "Some([3:1])");
-   let (a, b) = i.split(3..9);
-   assert_eq!(format!("{a:?}"), "Some([1:3])");
-   assert_eq!(format!("{b:?}"), "Some([3:3])");
-   let (a, b) = i.split(4..8);
-   assert_eq!(format!("{a:?}"), "Some([1:3, 4:1])");
-   assert_eq!(format!("{b:?}"), "Some([1:1, 3:3])");
-}
-
 
 impl CharWidthBuilder {
    /// Create a new empty CharWidthBuilder.
@@ -324,5 +297,31 @@ mod tests {
       assert_eq!(m.count(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
+   }
+
+   #[test]
+   fn split_index() {
+      let i = CharWidthBuilder::from("abc󰯬󰯯󰯲123ⅠⅡⅢ".chars()).freeze();
+      let (a, b) = i.split(0..0);
+      assert_eq!(format!("{a:?}"), "None");
+      assert_eq!(format!("{b:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
+      let (a, b) = i.split(6..6);
+      assert_eq!(format!("{a:?}"), "Some([1:3, 4:3])");
+      assert_eq!(format!("{b:?}"), "Some([1:3, 3:3])");
+      let (a, b) = i.split(0..12);
+      assert_eq!(format!("{a:?}"), "None");
+      assert_eq!(format!("{b:?}"), "None");
+      let (a, b) = i.split(12..12);
+      assert_eq!(format!("{a:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
+      assert_eq!(format!("{b:?}"), "None");
+      let (a, b) = i.split(1..11);
+      assert_eq!(format!("{a:?}"), "Some([1:1])");
+      assert_eq!(format!("{b:?}"), "Some([3:1])");
+      let (a, b) = i.split(3..9);
+      assert_eq!(format!("{a:?}"), "Some([1:3])");
+      assert_eq!(format!("{b:?}"), "Some([3:3])");
+      let (a, b) = i.split(4..8);
+      assert_eq!(format!("{a:?}"), "Some([1:3, 4:1])");
+      assert_eq!(format!("{b:?}"), "Some([1:1, 3:3])");
    }
 }
