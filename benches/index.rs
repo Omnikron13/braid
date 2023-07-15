@@ -1,7 +1,7 @@
 extern crate criterion;
 
 use rand::random;
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
+use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
 use braid::index::{Index, IndexBuilder};
 
 fn count(c: &mut Criterion) {
