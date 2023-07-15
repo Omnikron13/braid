@@ -20,13 +20,7 @@ fn count(c: &mut Criterion) {
          });
       });
       g.bench_with_input(BenchmarkId::new("indexed", name), &data, |b, data| {
-         let m = CharWidthBuilder::from_iter(data.chars());
-         b.iter(|| {
-            let _ = m.count();
-         });
-      });
-      g.bench_with_input(BenchmarkId::new("indexed-frozen", name), &data, |b, data| {
-         let m = CharWidthBuilder::from_iter(data.chars()).freeze();
+         let m: Index = data.chars().collect();
          b.iter(|| {
             let _ = m.count();
          });
@@ -42,7 +36,7 @@ fn byte_index(c: &mut Criterion) {
    let mut run = |f| {
       let path = format!("benches/data/{f}");
       let data = std::fs::read_to_string(path).unwrap();
-      let index: CharWidthBuilder = data.chars().collect();
+      let index: Index = data.chars().collect();
 
       // Sanity check
       for _ in 0..1024 {
