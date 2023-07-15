@@ -25,3 +25,12 @@ jobs:
 
       - name: Run tests
         run: cargo test
+
+   bench:
+      runs-on: ubuntu-latest
+      steps:
+      #- name: Checkout repo
+      #  uses: actions/checkout@main
+      
+      - name: Benchmark
+        run: cargo bench
