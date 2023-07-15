@@ -167,16 +167,21 @@ impl<'a> Strand<'a> {
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
-            if i == 0 {
-               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.byte_index(n)..)});
+            match leaf.split(i..(i + n)) {
+               (Some(a), Some(b)) => {
+                  return Strand::new_branch(
+                     Strand::Leaf(Rc::new(a)),
+                     Strand::Leaf(Rc::new(b)),
+                  );
+               },
+               (Some(a), None) => {
+                  return Strand::Leaf(Rc::new(a));
+               },
+               (None, Some(b)) => {
+                  return Strand::Leaf(Rc::new(b));
+               },
+               _ => unreachable!("results in empty leaf"),
             }
-            if i + n == leaf.length {
-               return Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.byte_index(i))});
-            }
-            return Strand::new_branch(
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(..leaf.byte_index(i))}),
-               Strand::new_leaf(unsafe {leaf.value.get_unchecked(leaf.byte_index(i + n)..)}),
-            );
          },
       }
    }
