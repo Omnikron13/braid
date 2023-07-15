@@ -330,13 +330,13 @@ fn test_split() {
    assert!(b.is_none());
    let (a, b) = leaf.split(..4);
    assert!(a.is_none());
-   assert!(b.unwrap().value == "ⒶⒷⒸ");
+   assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
    let (a, b) = leaf.split(3..);
-   assert!(a.unwrap().value == "abc");
+   assert_eq!(a.unwrap().value, "abc");
    assert!(b.is_none());
    let (a, b) = leaf.split(3..4);
-   assert!(a.unwrap().value == "abc");
-   assert!(b.unwrap().value == "ⒶⒷⒸ");
+   assert_eq!(a.unwrap().value, "abc");
+   assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
 }
 
 
