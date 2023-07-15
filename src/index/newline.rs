@@ -5,7 +5,6 @@
 // copyright notice and this permission notice appear in all copies.
 
 //! This module provides an index of newlines in the string.
-use super::{Index, IndexBuilder};
 use std::ops::Range;
 
 pub struct Newline {
@@ -16,10 +15,8 @@ impl Newline {
    pub fn iter(&self) -> impl Iterator<Item=usize> + '_ {
       self.index.iter().copied()
    }
-}
 
-impl Index for Newline {
-   fn split(&self, r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
+   pub fn split(&self, r: Range<usize>) -> (Option<Self>, Option<Self>) where Self: Sized {
       let s = self.index.iter().take_while(|&q| q <= &r.start).count();
       let e = self.index.iter().take_while(|&q| q < &r.end).count();
       (
@@ -35,19 +32,19 @@ pub struct NewlineBuilder {
    index: Vec<usize>,
 }
 
-impl IndexBuilder<Newline> for NewlineBuilder {
-   fn new() -> Self {
+impl NewlineBuilder {
+   pub fn new() -> Self {
       Self { count: 0, index: vec![] }
    }
 
-   fn push(&mut self, c: char) {
+   pub fn push(&mut self, c: char) {
       if c == '\n' {
          self.index.push(self.count);
       }
       self.count += 1;
    }
 
-   fn freeze(self) -> Newline {
+   pub fn freeze(self) -> Newline {
       return Newline{ index: self.index.into_boxed_slice() };
    }
 }
