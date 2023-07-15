@@ -85,7 +85,11 @@ fn push(c: &mut Criterion) {
       .sample_size(1000)
    ;
 
-   for n in [1024, 2048, 4096] {
+   for n in [
+      1024,
+      //2048,
+      4096,
+   ] {
       let chars: Vec<char> = (0..n).map(|_| random::<char>()).collect();
       let cyrillic: Vec<char> = include_str!("data/cyrillic_01").chars().collect();
       for (name, input) in [("rand", chars), ("uniform", vec!('~')), ("alternating", vec!['~', '💖']), ("cyrillic", cyrillic)].iter() {
