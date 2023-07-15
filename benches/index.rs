@@ -81,9 +81,10 @@ fn byte_index(c: &mut Criterion) {
 fn push(c: &mut Criterion) {
    let mut g = c.benchmark_group("push");
    g
-      .sample_size(100000)
-      .measurement_time(std::time::Duration::from_secs(45))
-      .warm_up_time(std::time::Duration::from_secs(15));
+      .warm_up_time(std::time::Duration::from_secs(5))
+      .measurement_time(std::time::Duration::from_secs(15))
+      .sample_size(1000)
+   ;
 
    for n in [1024, 2048, 4096] {
       let chars: Vec<char> = (0..n).map(|_| random::<char>()).collect();
