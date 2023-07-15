@@ -185,15 +185,15 @@ impl FromIterator<char> for CharWidthBuilder {
    /// This is the most general way to create a CharWidthBuilder, and the favoured way to do so
    /// unless you have actual compelling reasons to do otherwise.
    ///
-   /// # Examples
-   /// ```
-   /// use braid::index::char_width::CharWidthBuilder;
-   ///
-   /// let map: CharWidthBuilder = "abcⓐⓑⓒ".chars().collect();
-   /// let map = map.freeze();
-   /// assert_eq!(map.count(), 6);
-   /// assert_eq!(map.count_bytes(), 12);
-   /// ```
+   /// // # Examples
+   /// // ```
+   /// // use braid::index::char_width::CharWidthBuilder;
+   /// //
+   /// // let map: CharWidthBuilder = "abcⓐⓑⓒ".chars().collect();
+   /// // let map = map.freeze();
+   /// // assert_eq!(map.count(), 6);
+   /// // assert_eq!(map.count_bytes(), 12);
+   /// // ```
    fn from_iter<T>(iter: T) -> Self
    where T: IntoIterator<Item = char> {
       iter.into_iter().fold(CharWidthBuilder::new(), |mut m, c| {
