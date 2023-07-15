@@ -10,7 +10,7 @@ env:
    CARGO_TERM_COLOR: always
 
 jobs:
-   build:
+   test:
       runs-on: ubuntu-latest
       steps:
       - name: Checkout repo
@@ -29,8 +29,14 @@ jobs:
    bench:
       runs-on: ubuntu-latest
       steps:
-      #- name: Checkout repo
-      #  uses: actions/checkout@main
+      - name: Checkout repo
+        uses: actions/checkout@main
+        
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@master
+        with:
+           toolchain: nightly
+           override: true
       
-      - name: Benchmark
+      - name: Benchmark!
         run: cargo bench
