@@ -3,6 +3,7 @@ extern crate criterion;
 use rand::random;
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
 use braid::index::char_width::CharWidthBuilder;
+use braid::index::{Index, IndexBuilder};
 
 fn count(c: &mut Criterion) {
    let mut g = c.benchmark_group("count_chars");
