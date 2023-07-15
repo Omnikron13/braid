@@ -2,25 +2,40 @@ extern crate criterion;
 
 use rand::random;
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
+use criterion::black_box;
 use braid::index::{Index, IndexBuilder};
 
 fn count(c: &mut Criterion) {
-   let mut g = c.benchmark_group("count_chars");
-
-   // Hangs for fucking forever doing 'warmup', despite duration claim, so just cludge away the warmup...
-   g.warm_up_time(std::time::Duration::from_nanos(1));
-
-   for name in ["small", "medium", "large", "unicode_01", "unicode_02", "cyrillic_01"] {
+   let mut g = c.benchmark_group("count");
+   g.sample_size(1000);
+   for name in [
+      "small",
+      "medium",
+      "large",
+      "unicode_01",
+      //"unicode_02",
+      "cyrillic_01",
+   ] {
       let data = std::fs::read_to_string(format!("benches/data/{name}")).unwrap();
-      g.bench_with_input(BenchmarkId::new("manual", name), &data, |b, data| {
+      let index: Index = data.chars().collect();
+      g.bench_with_input(BenchmarkId::new("chars/manual", name), &data, |b, data| {
          b.iter(|| {
-            let _ = data.chars().count();
+            let _ = black_box(data.chars()).count();
          });
       });
-      g.bench_with_input(BenchmarkId::new("indexed", name), &data, |b, data| {
-         let m: Index = data.chars().collect();
+      g.bench_with_input(BenchmarkId::new("chars/indexed", name), &index, |b, data| {
          b.iter(|| {
-            let _ = m.count();
+            let _ = black_box(data).count();
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("bytes/manual", name), &data, |b, data| {
+         b.iter(|| {
+            let _ = black_box(data).len();
+         });
+      });
+      g.bench_with_input(BenchmarkId::new("bytes/indexed", name), &index, |b, data| {
+         b.iter(|| {
+            let _ = black_box(data).count_bytes();
          });
       });
    }
