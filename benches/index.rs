@@ -84,9 +84,12 @@ fn push(c: &mut Criterion) {
       //2048,
       4096,
    ] {
-      let chars: Vec<char> = (0..n).map(|_| random::<char>()).collect();
-      let cyrillic: Vec<char> = include_str!("data/cyrillic_01").chars().collect();
-      for (name, input) in [("rand", chars), ("uniform", vec!('~')), ("alternating", vec!['~', '💖']), ("cyrillic", cyrillic)].iter() {
+      for (name, input) in [
+         ("rand", (0..n).map(|_| random::<char>()).collect()),
+         ("uniform", vec!('~')),
+         ("alternating", vec!['~', '💖']),
+         ("cyrillic", include_str!("data/cyrillic_01").chars().collect()),
+      ].iter() {
          g.throughput(Throughput::Bytes(n as u64));
          g.bench_with_input(BenchmarkId::new(*name, n), input, |b, input| {
             b.iter(|| {
