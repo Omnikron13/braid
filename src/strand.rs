@@ -320,14 +320,15 @@ impl LeafNode<'_> {
          std::ops::Bound::Excluded(&i) => i - 1,
       };
       assert!(end <= self.length, "index out of bounds");
+      let (a_index, b_index) = self.index.split(start..end);
       return (
          match start {
             0 => None,
-            s => Some(Self{ length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+            s => Some(Self{ index: a_index.unwrap(), length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
          },
          match end {
             e if e == self.length => None,
-            e => Some(Self{ length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+            e => Some(Self{ index: b_index.unwrap(), length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
          },
       );
    }
@@ -335,7 +336,8 @@ impl LeafNode<'_> {
 
 #[cfg(test)] #[test]
 fn test_split() {
-   let leaf = LeafNode{ length: 6, value: &"abcⒶⒷⒸ" };
+   let s = &"abcⒶⒷⒸ";
+   let leaf = LeafNode{ index: s.chars().collect::<CharWidthBuilder>().freeze(), length: 6, value: s };
    let (a, b) = leaf.split(..);
    assert!(a.is_none());
    assert!(b.is_none());
