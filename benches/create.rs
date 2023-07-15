@@ -1,12 +1,10 @@
 // These benchmarks were lifted from ropey, to compare and sanity check our performance.
 // Consequently, they should be considered as licensed under the MIT license.
-
 extern crate criterion;
 
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use criterion::black_box;
 use braid::strand::Strand;
-
 
 fn from_str(c: &mut Criterion) {
    let mut g = c.benchmark_group("from_str");
@@ -26,11 +24,8 @@ fn from_str(c: &mut Criterion) {
    }
 }
 
-
-const TEXT_LARGE: &str = include_str!("data/large");
-
 fn rope_clone(c: &mut Criterion) {
-   let rope = Strand::new_leaf(TEXT_LARGE);
+   let rope = Strand::new_leaf(include_str!("data/large"));
    c.bench_function("rope_clone", |bench| {
       bench.iter(|| {
          let _ = black_box(&rope).clone();
