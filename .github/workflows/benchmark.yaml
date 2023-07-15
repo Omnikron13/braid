@@ -1,0 +1,37 @@
+name: Criterion benchmarks
+
+on:
+   push:
+      branches: [ "master" ]
+
+env:
+   CARGO_TERM_COLOR: always
+
+permissions:
+   contents: write
+   deployments: write
+
+jobs:
+   benchmark:
+      name: Run Criterion benchmarks
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+      - run: rustup toolchain update nightly && rustup default nightly
+
+      - name: Run benchmarks
+        run: cargo +nightly bench -- --output-format bencher | tee benchmarks.txt
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+           name: Rust Benchmark
+           tool: 'cargo'
+           output-file-path: benchmarks.txt
+           github-token: ${{ secrets.GITHUB_TOKEN }}
+           auto-push: true
+           # Show alert with commit comment on detecting possible performance regression
+           alert-threshold: '150%'
+           comment-on-alert: true
+           fail-on-alert: true
+           alert-comment-cc-users: '@Omnikron13'
