@@ -141,9 +141,6 @@ fn insert_after_clone(c: &mut Criterion) {
 
 criterion_group!(
    benches,
-   // TODO: replace this & insert_char with one thing as this API has no
-   // char level insert method anyway
-   //insert_char,
    insert_small,
    insert_medium,
    insert_large,
