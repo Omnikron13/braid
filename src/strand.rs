@@ -167,7 +167,7 @@ impl<'a> Strand<'a> {
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
-            match leaf.split(i..(i + n)) {
+            match leaf.split(i..=(i + n)) {
                (Some(a), Some(b)) => {
                   return Strand::new_branch(
                      Strand::Leaf(Rc::new(a)),
