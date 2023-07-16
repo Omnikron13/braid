@@ -11,6 +11,7 @@
 use std::fmt;
 use std::iter;
 use std::hash::{Hash, Hasher};
+use std::ops::{Bound, RangeBounds};
 use std::sync::Arc;
 use xxhash_rust::xxh3::Xxh3;
 use crate::index::Index;
@@ -116,13 +117,23 @@ impl<'a> Strand<'a> {
 
 
    // Remove substring of length n starting at (char) index i
+   /// TODO: proper doc
    #[inline]
-   pub fn remove(&self, i: usize, n: usize) -> Strand<'a> {
-      assert!(i < self.length(), "Index out of bounds");
-      assert!(i + n <= self.length(), "Strand doesn't have enough characters");
+   pub fn remove<T>(&self, r: T) -> Strand<'a> where T: RangeBounds<usize> {
+      let (s, e) = match (r.start_bound(), r.end_bound()) {
+         (Bound::Unbounded, Bound::Unbounded) => return self.clone(),
+         (Bound::Unbounded, Bound::Included(&e)) => (0, e + 1),
+         (Bound::Unbounded, Bound::Excluded(&e)) => (0, e),
+         (Bound::Included(&s), Bound::Unbounded) => (s, self.length()),
+         (Bound::Included(&s), Bound::Included(&e)) => (s, e + 1),
+         (Bound::Included(&s), Bound::Excluded(&e)) => (s, e),
+         _ => unreachable!("start_bound() should never be exclusive"),
+      };
+      assert!(s < self.length(), "start of range out of bounds");
+      assert!(e <= self.length(), "end of range out of bounds");
 
       // Short circuit for clearing entire strand
-      if n == self.length() {
+      if s == 0 && e == self.length() {
          return Strand::new_leaf("");
       }
 
@@ -130,49 +141,49 @@ impl<'a> Strand<'a> {
          // Trim branch
          Strand::Branch(branch) => {
             // Trim head
-            if i == 0 {
+            if s == 0 {
                // Discard left entirely
-               if n == branch.left.length() {
+               if e == branch.left.length() {
                   return branch.right.clone();
                }
                // ...and trim the head of right
-               if n > branch.left.length() {
-                  return branch.right.remove(0, n - branch.left.length());
+               if e > branch.left.length() {
+                  return branch.right.remove(..(e - branch.left.length()));
                }
             }
 
             // Contained to left branch
-            if i + n <= branch.left.length() {
+            if e <= branch.left.length() {
                return Strand::new_branch(
-                  branch.left.remove(i, n),
+                  branch.left.remove(s..e),
                   branch.right.clone(),
                );
             }
 
             // Contained to right branch
-            if i >= branch.left.length() {
+            if s >= branch.left.length() {
                // Discard right entirely
-               if i == branch.left.length() && n >= branch.right.length() {
+               if s == branch.left.length() && (e - s) >= branch.right.length() {
                   return branch.left.clone()
                }
 
                // Trim/split tail
                return Strand::new_branch(
                   branch.left.clone(),
-                  branch.right.remove(i - branch.left.length(), n),
+                  branch.right.remove((s - branch.left.length())..(e - branch.left.length())),
                );
             }
 
             // Full split
             return Strand::new_branch(
-               branch.left.remove(i, branch.left.length() - i),
-               branch.right.remove(0, n - (branch.left.length() - i)),
+               branch.left.remove(s..),
+               branch.right.remove(..(e - branch.left.length())),
             );
          },
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
-            match leaf.split(i..=(i + n)) {
+            match leaf.split(s..=e) {
                (Some(a), Some(b)) => {
                   return Strand::new_branch(
                      Strand::Leaf(Arc::new(a)),
@@ -462,11 +473,11 @@ mod tests {
    #[test]
    fn test_remove_unicode() {
       let st = Strand::new_leaf("ⅠⅡⅢⅣⅤ");
-      assert_eq!(st.remove(0, 1).to_string(), "ⅡⅢⅣⅤ");
-      assert_eq!(st.remove(1, 1).to_string(), "ⅠⅢⅣⅤ");
-      assert_eq!(st.remove(2, 1).to_string(), "ⅠⅡⅣⅤ");
-      assert_eq!(st.remove(3, 1).to_string(), "ⅠⅡⅢⅤ");
-      assert_eq!(st.remove(4, 1).to_string(), "ⅠⅡⅢⅣ");
+      assert_eq!(st.remove(0..1).to_string(), "ⅡⅢⅣⅤ");
+      assert_eq!(st.remove(1..2).to_string(), "ⅠⅢⅣⅤ");
+      assert_eq!(st.remove(2..3).to_string(), "ⅠⅡⅣⅤ");
+      assert_eq!(st.remove(3..4).to_string(), "ⅠⅡⅢⅤ");
+      assert_eq!(st.remove(4..5).to_string(), "ⅠⅡⅢⅣ");
    }
 
    // Sweep a removal of 2, 4, 8, and 16 chars across a reasonably nested test strand
@@ -499,7 +510,8 @@ mod tests {
 
       for x in [2, 4, 8, 16] {
          for i in 0..(34-x)/2 {
-            let r = st.clone().remove(i*2, x);
+            let y = i * 2;
+            let r = st.clone().remove(y..x+y);
             println!("remove {:0>2}-{x:0>2}: {r:?}", i*2);
             // TODO: use the proper error message thingy
             assert_eq!(format!("{r}"), format!("{}{}", &canon[0..i*2], &canon[(i*2)+x..canon.len()]));
@@ -514,7 +526,7 @@ mod tests {
    fn test_remove_all_leaf() -> Result<(), String> {
       let n = Strand::new_leaf("1234");
       println!("Removing all: {:?}", n);
-      let n = n.remove(0, 4);
+      let n = n.remove(0..4);
       println!("Removing all: {:?}", n);
       assert_eq!(n.length(), 0, "Strand should be empty");
       match n {
@@ -528,7 +540,7 @@ mod tests {
    fn test_remove_all_branch() -> Result<(), String> {
       let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
       println!("Removing all: {:?}", n);
-      let n = n.remove(0, 6);
+      let n = n.remove(0..6);
       println!("Removing all: {:?}", n);
       assert_eq!(n.length(), 0, "Strand should be empty");
       match n {
@@ -542,7 +554,7 @@ mod tests {
    fn test_remove_drop_left() {
       let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
       println!("Dropping left: {:?}", n);
-      let n = n.remove(0, 3);
+      let n = n.remove(0..3);
       println!("Dropping left: {:?}", n);
       match n {
          Strand::Leaf(l) => {
@@ -557,7 +569,7 @@ mod tests {
    fn test_remove_drop_right() {
       let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("bar"));
       println!("Dropping right: {:?}", n);
-      let n = n.remove(3, 3);
+      let n = n.remove(3..6);
       println!("Dropping right: {:?}", n);
       match n {
          Strand::Leaf(l) => {
@@ -572,7 +584,7 @@ mod tests {
    fn test_remove_trim_head_leaf() {
       let n = Strand::new_leaf("foobar");
       println!("Trimming head: {:?}", n);
-      let n = n.remove(0, 3);
+      let n = n.remove(0..3);
       println!("Trimming head: {:?}", n);
       match n {
          Strand::Leaf(leaf) => {
@@ -587,7 +599,7 @@ mod tests {
    fn test_remove_trim_tail_leaf() {
       let n = Strand::new_leaf("foobar");
       println!("Trimming tail: {:?}", n);
-      let n = n.remove(3, 3);
+      let n = n.remove(3..6);
       println!("Trimming tail: {:?}", n);
       match n {
          Strand::Leaf(leaf) => {
@@ -602,7 +614,7 @@ mod tests {
    fn test_remove_full_split_leaf() {
       let n = Strand::new_leaf("foo_bar");
       println!("Full split: {:?}", n);
-      let n = n.remove(3, 1);
+      let n = n.remove(3..4);
       println!("Full split: {:?}", n);
       match n {
          Strand::Branch(branch) => {
@@ -623,7 +635,7 @@ mod tests {
    fn test_remove_trim_head_branch() {
       let n = Strand::new_branch(Strand::new_leaf("foo_"), Strand::new_leaf("bar"));
       println!("Trimming head: {:?}", n);
-      let n = n.remove(0, 4);
+      let n = n.remove(0..4);
       println!("Trimming head: {:?}", n);
       match n {
          Strand::Leaf(leaf) => {
@@ -638,7 +650,7 @@ mod tests {
    fn test_remove_trim_tail_branch() {
       let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("_bar"));
       println!("Trimming tail: {:?}", n);
-      let n = n.remove(3, 4);
+      let n = n.remove(3..7);
       println!("Trimming tail: {:?}", n);
       match n {
          Strand::Leaf(leaf) => {
@@ -653,7 +665,7 @@ mod tests {
    fn test_remove_full_split_branch() {
       let n = Strand::new_branch(Strand::new_leaf("foo_"), Strand::new_leaf("_bar"));
       println!("Full split: {:?}", n);
-      let n = n.remove(3, 2);
+      let n = n.remove(3..5);
       println!("Full split: {:?}", n);
       match n {
          Strand::Branch(branch) => {
@@ -674,7 +686,7 @@ mod tests {
    fn test_remove_inner_trim_branch_left() {
       let n = Strand::new_branch(Strand::new_leaf("foo_"), Strand::new_leaf("bar"));
       println!("Inner trim: {:?}", n);
-      let n = n.remove(3, 1);
+      let n = n.remove(3..4);
       println!("Inner trim: {:?}", n);
       match n {
          Strand::Branch(branch) => {
@@ -695,7 +707,7 @@ mod tests {
    fn test_remove_inner_trim_branch_right() {
       let n = Strand::new_branch(Strand::new_leaf("foo"), Strand::new_leaf("_bar"));
       println!("Inner trim: {:?}", n);
-      let n = n.remove(3, 1);
+      let n = n.remove(3..4);
       println!("Inner trim: {:?}", n);
       match n {
          Strand::Branch(branch) => {
