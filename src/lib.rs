@@ -69,6 +69,5 @@
 
 #![feature(exclusive_range_pattern)]
 #![feature(test)]
-extern crate test;
 pub mod strand;
 pub mod index;
