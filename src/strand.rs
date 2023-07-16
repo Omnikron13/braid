@@ -138,20 +138,10 @@ impl<'a> Strand<'a> {
    /// TODO: proper doc
    #[inline]
    pub fn remove<T>(&self, r: T) -> Strand<'a> where T: RangeBounds<usize> {
-      let (s, e) = match (r.start_bound(), r.end_bound()) {
-         (Bound::Unbounded, Bound::Unbounded) => return self.clone(),
-         (Bound::Unbounded, Bound::Included(&e)) => (0, e + 1),
-         (Bound::Unbounded, Bound::Excluded(&e)) => (0, e),
-         (Bound::Included(&s), Bound::Unbounded) => (s, self.length()),
-         (Bound::Included(&s), Bound::Included(&e)) => (s, e + 1),
-         (Bound::Included(&s), Bound::Excluded(&e)) => (s, e),
-         _ => unreachable!("start_bound() should never be exclusive"),
-      };
-      assert!(s < self.length(), "start of range out of bounds");
-      assert!(e <= self.length(), "end of range out of bounds");
+      let r = self.normalise_range(r);
 
       // Short circuit for clearing entire strand
-      if s == 0 && e == self.length() {
+      if r.start == 0 && r.end == self.length() {
          return Strand::new_leaf("");
       }
 
@@ -159,49 +149,49 @@ impl<'a> Strand<'a> {
          // Trim branch
          Strand::Branch(branch) => {
             // Trim head
-            if s == 0 {
+            if r.start == 0 {
                // Discard left entirely
-               if e == branch.left.length() {
+               if r.end == branch.left.length() {
                   return branch.right.clone();
                }
                // ...and trim the head of right
-               if e > branch.left.length() {
-                  return branch.right.remove(..(e - branch.left.length()));
+               if r.end > branch.left.length() {
+                  return branch.right.remove(..(r.end - branch.left.length()));
                }
             }
 
             // Contained to left branch
-            if e <= branch.left.length() {
+            if r.end <= branch.left.length() {
                return Strand::new_branch(
-                  branch.left.remove(s..e),
+                  branch.left.remove(r.start..r.end),
                   branch.right.clone(),
                );
             }
 
             // Contained to right branch
-            if s >= branch.left.length() {
+            if r.start >= branch.left.length() {
                // Discard right entirely
-               if s == branch.left.length() && (e - s) >= branch.right.length() {
+               if r.start == branch.left.length() && (r.end - r.start) >= branch.right.length() {
                   return branch.left.clone()
                }
 
                // Trim/split tail
                return Strand::new_branch(
                   branch.left.clone(),
-                  branch.right.remove((s - branch.left.length())..(e - branch.left.length())),
+                  branch.right.remove((r.start - branch.left.length())..(r.end - branch.left.length())),
                );
             }
 
             // Full split
             return Strand::new_branch(
-               branch.left.remove(s..),
-               branch.right.remove(..(e - branch.left.length())),
+               branch.left.remove(r.start..),
+               branch.right.remove(..(r.end - branch.left.length())),
             );
          },
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
-            match leaf.split(s..=e) {
+            match leaf.split(r.start..=r.end) {
                (Some(a), Some(b)) => {
                   return Strand::new_branch(
                      Strand::Leaf(Arc::new(a)),
