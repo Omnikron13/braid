@@ -67,6 +67,7 @@
 //! None of this is at all concrete right now, though the former couple of things there are likely
 //! to be a must in some form for milestone `1.0.0`.
 
+#![feature(exclusive_range_pattern)]
 #![feature(test)]
 extern crate test;
 pub mod strand;

@@ -11,7 +11,7 @@
 use std::fmt;
 use std::iter;
 use std::hash::{Hash, Hasher};
-use std::ops::{Bound, RangeBounds};
+use std::ops::{Bound, Range, RangeBounds};
 use std::sync::Arc;
 use xxhash_rust::xxh3::Xxh3;
 use crate::index::Index;
@@ -70,6 +70,24 @@ impl<'a> Strand<'a> {
          Strand::Branch(b) => b.length,
          Strand::Leaf(l) => l.length,
       }
+   }
+
+   /// Convert the various range types (`..`, `a..`, `..b`, `c..=d`, `..=e`) into `x..y` form.
+   #[inline]
+   pub fn normalise_range<T>(&self, r: T) -> Range<usize> where T: RangeBounds<usize> {
+      let (start, end) = match (r.start_bound(), r.end_bound()) {
+         (Bound::Unbounded, Bound::Unbounded) => return 0..self.length(),
+         (Bound::Unbounded, Bound::Included(&e)) => (0, e + 1),
+         (Bound::Unbounded, Bound::Excluded(&e)) => (0, e),
+         (Bound::Included(&s), Bound::Unbounded) => (s, self.length()),
+         (Bound::Included(&s), Bound::Included(&e)) => (s, e + 1),
+         (Bound::Included(&s), Bound::Excluded(&e)) => (s, e),
+         _ => unreachable!("start_bound() should never be exclusive"),
+      };
+      assert!(start <= end, "range out of order");
+      assert!(start < self.length(), "start of range out of bounds");
+      assert!(end <= self.length(), "end of range out of bounds");
+      start..end
    }
 
 
@@ -406,6 +424,15 @@ mod tests {
       assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
    }
 
+   #[test]
+   fn normalise_range() {
+      let s = strand!("abcⒶⒷⒸ");
+      let len = s.length();
+      assert_eq!(s.normalise_range(..), 0..len);
+      assert_eq!(s.normalise_range(..4), 0..4);
+      assert_eq!(s.normalise_range(3..), 3..len);
+      assert_eq!(s.normalise_range(..=4), 0..5);
+   }
 
    #[cfg(test)] #[test]
    fn test_hash() {
