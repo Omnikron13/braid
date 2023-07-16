@@ -345,7 +345,7 @@ impl LeafNode<'_> {
    }
 
    #[inline]
-   fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: std::ops::RangeBounds<usize> {
+   fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: RangeBounds<usize> {
       let start = match r.start_bound() {
          std::ops::Bound::Unbounded => 0,
          std::ops::Bound::Included(&i) => i,
