@@ -355,14 +355,14 @@ impl LeafNode<'_> {
    #[inline]
    fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: RangeBounds<usize> {
       let start = match r.start_bound() {
-         std::ops::Bound::Unbounded => 0,
-         std::ops::Bound::Included(&i) => i,
+         Bound::Unbounded => 0,
+         Bound::Included(&i) => i,
          _ => unimplemented!(),
       };
       let end = match r.end_bound() {
-         std::ops::Bound::Unbounded => self.value.chars().count(),
-         std::ops::Bound::Included(&i) => i,
-         std::ops::Bound::Excluded(&i) => i - 1,
+         Bound::Unbounded => self.value.chars().count(),
+         Bound::Included(&i) => i,
+         Bound::Excluded(&i) => i - 1,
       };
       assert!(end <= self.length, "index out of bounds");
       let (a_index, b_index) = self.index.split(start..end);
