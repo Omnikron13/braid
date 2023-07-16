@@ -398,7 +398,7 @@ mod tests {
    use pretty_assertions::{assert_eq, /*assert_ne*/};
 
 
-   #[cfg(test)] #[test]
+   #[test]
    fn test_eq() {
       let st_1 = strand!("foo", "bar", strand!("baz", "qux"));
       assert_eq!(st_1, strand!("foo", "bar", strand!("baz", "qux")));
@@ -406,7 +406,7 @@ mod tests {
       assert_eq!(st_1, strand!("foobarbazqux"));
    }
 
-   #[cfg(test)] #[test]
+   #[test]
    fn test_split() {
       let s = &"abcⒶⒷⒸ";
       let leaf = LeafNode{ index: s.chars().collect::<Index>(), length: 6, value: s };
@@ -434,7 +434,7 @@ mod tests {
       assert_eq!(s.normalise_range(..=4), 0..5);
    }
 
-   #[cfg(test)] #[test]
+   #[test]
    fn test_hash() {
       let st = strand!("foo", "bar", strand!("baz", "qux"));
       let mut h = Xxh3::new();
