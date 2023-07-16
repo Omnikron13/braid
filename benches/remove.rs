@@ -31,7 +31,7 @@ fn remove(c: &mut Criterion) {
          b.iter(|| {
             let len = rope.length();
             let start = random::<usize>() % (len - **data as usize);
-            rope = rope.remove(start, **data as usize);
+            rope = rope.remove(start..(**data as usize)+start);
             if rope.length() <= TEXT.len() / 2 {
                rope = Strand::new_leaf(&text);
             }
@@ -42,7 +42,7 @@ fn remove(c: &mut Criterion) {
          let mut rope = Strand::new_leaf(&text);
          b.iter(|| {
             let start = 0;
-            rope = rope.remove(start, **data as usize);
+            rope = rope.remove(start..(**data as usize)+start);
             if rope.length() <= TEXT.len() / 2 {
                rope = Strand::new_leaf(&text);
             }
@@ -54,7 +54,7 @@ fn remove(c: &mut Criterion) {
          b.iter(|| {
             let len = rope.length();
             let start = len / 2;
-            rope = rope.remove(start, **data as usize);
+            rope = rope.remove(start..(**data as usize)+start);
             if rope.length() <= TEXT.len() / 2 {
                rope = Strand::new_leaf(&text);
             }
@@ -66,7 +66,7 @@ fn remove(c: &mut Criterion) {
          b.iter(|| {
             let len = rope.length();
             let start = len - **data as usize;
-            rope = rope.remove(start, **data as usize);
+            rope = rope.remove(start..(**data as usize)+start);
             if rope.length() <= TEXT.len() / 2 {
                rope = Strand::new_leaf(&text);
             }
@@ -87,7 +87,7 @@ fn remove_initial_after_clone(c: &mut Criterion) {
          }
          let len = rope_clone.length();
          let start = random::<usize>() % len;
-         rope_clone = rope_clone.remove(start, 1);
+         rope_clone = rope_clone.remove(start..(1+start));
          i += 1;
       })
    });
