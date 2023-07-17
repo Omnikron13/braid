@@ -7,9 +7,10 @@ mod char_width;
 mod newline;
 
 use std::iter::{FromIterator, IntoIterator};
-use std::ops::{RangeBounds, Bound};
+use std::ops::RangeBounds;
 use char_width::{CharWidth, CharWidthBuilder};
 use newline::{Newline, NewlineBuilder};
+use crate::ranged::Ranged;
 
 /// TODO: document
 pub struct Index {
@@ -39,15 +40,7 @@ impl Index {
    /// TODO: document
    #[inline]
    pub fn split<T>(&self, r: T) -> (Index, Index) where T: RangeBounds<usize> {
-      let r = match (r.start_bound(), r.end_bound()) {
-         (Bound::Unbounded, Bound::Unbounded) => 0..self.count(),
-         (Bound::Unbounded, Bound::Excluded(&e)) => 0..e,
-         (Bound::Unbounded, Bound::Included(&e)) => 0..(e+1),
-         (Bound::Included(&s), Bound::Unbounded) => s..self.count(),
-         (Bound::Included(&s), Bound::Excluded(&e)) => s..e,
-         (Bound::Included(&s), Bound::Included(&e)) => s..(e+1),
-         _ => unreachable!("start_bound() should never be exclusive"),
-      };
+      let r = self.normalise_range(r);
       let (cw_a, cw_b) = self.char_width.split(r.clone());
       let (nl_a, nl_b) = self.newline.split(r);
       return (
@@ -66,6 +59,17 @@ impl Index {
    #[inline]
    pub fn newline_iter(&self) -> impl Iterator<Item=usize> + '_ {
       self.newline.iter()
+   }
+}
+
+impl Ranged for Index {
+   /// Get the length (in [`char`]s) that the index covers.
+   ///
+   /// Implementing this as part of this trait also provides a default implementation
+   /// for of the `normalise_range()` method.
+   #[inline]
+   fn length(&self) -> usize {
+      self.count()
    }
 }
 
