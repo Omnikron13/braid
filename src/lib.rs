@@ -50,7 +50,7 @@
 //! as much underlying data as possible.
 //!
 //! Access to the data is provided almost exclusively via iterators, and is _heavily_ intended to
-//! be [`char`] based, rather than [`byte`] based.
+//! be [`char`] based, rather than [`byte`](u8) based.
 //!
 //! Secondarily the intent is to have robust support for line based operations. Of note here is that
 //! the design direction is _opinionated_ about line endings; `LF`, `\n`, `0x0A`, etc. is canonical.
