@@ -13,6 +13,7 @@ const TEXT: &str = include_str!("data/large");
 fn bench_insert(c: &mut Criterion, src: &str, text: &str) {
    let mut g = c.benchmark_group(format!("insert"));
    g.sample_size(1000);
+   g.noise_threshold(0.05);
 
    for (name, data) in [
       ("small", "a"),
