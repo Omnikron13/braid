@@ -49,6 +49,8 @@ pub trait Ranged {
          (Bound::Included(&s), Bound::Included(&e)) => s..(e + 1),
          _ => unreachable!("start_bound() should never be exclusive"),
       };
+      assert!(r.end <= self.length(), "range end out of bounds");
+      assert!(r.start <= r.end, "range start after end");
       return r;
    }
 }
@@ -72,5 +74,6 @@ mod tests {
       assert_eq!(tr.normalise_range(0..10), 0..10);
       assert_eq!(tr.normalise_range(..5), 0..5);
       assert_eq!(tr.normalise_range(5..), 5..10);
+      // TODO: test for panic on out of bounds/out of order
    }
 }
