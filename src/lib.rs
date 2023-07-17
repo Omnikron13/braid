@@ -6,7 +6,7 @@
 //! and experimenting with Rust.
 //!
 //! Due to the above, heed the following warning: this codebase has no guarantees
-//! of stability, correctness, efficiency, cleanliness, or iodomatic design.
+//! of stability, correctness, efficiency, cleanliness, or idiomatic design.
 //! The design decisions (and Rust specific implementations) may not be ideal for
 //! _any_ use language, never mind for Rust.
 //!
@@ -35,7 +35,7 @@
 //! _'There's this crate called [ropey](https://crates.io/crates/ropey)...'_
 //!
 //! Yup, I saw it, I skimmed the (non-code) details, and elected to ignore it and reinvent some
-//! wheels becuase I needed a learning project. I also elected to avoid the source and any real
+//! wheels because I needed a learning project. I also elected to avoid the source and any real
 //! implementation details, so as not to be influenced.
 //!
 //! As it happens, I seem to have made just about every possible design decision differently.
@@ -45,7 +45,7 @@
 //! The core data structure (right now) is the [`Strand`](strand::Strand), which represents every
 //! position of the tree; root, branches, leaves...
 //!
-//! Initialised empty or with an inital string as a monolithic leaf, subsequent insert & remove
+//! Initialised empty or with an initial string as a monolithic leaf, subsequent insert & remove
 //! operations will create new `Strand`s, which are split and merged as necessary, while sharing
 //! as much underlying data as possible.
 //!
