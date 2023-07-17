@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1689618932034,
+  "lastUpdate": 1689620516301,
   "repoUrl": "https://github.com/Omnikron13/braid",
   "entries": {
     "Rust Benchmark": [
@@ -2747,6 +2747,348 @@ window.BENCHMARK_DATA = {
             "name": "remove_initial_after_clone",
             "value": 2422,
             "range": "± 34",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "joey.sabey@gmx.com",
+            "name": "Joey Sabey",
+            "username": "Omnikron13"
+          },
+          "committer": {
+            "email": "joey.sabey@gmx.com",
+            "name": "Joey Sabey",
+            "username": "Omnikron13"
+          },
+          "distinct": true,
+          "id": "a8db59e2c6b6f9be01e128657a162d5f9553d8bf",
+          "message": "implement Ranged for Index",
+          "timestamp": "2023-07-17T19:45:17+01:00",
+          "tree_id": "4942da9a2d98b3061573b8433f2c875c4fee77d0",
+          "url": "https://github.com/Omnikron13/braid/commit/a8db59e2c6b6f9be01e128657a162d5f9553d8bf"
+        },
+        "date": 1689620515822,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "from_str//small",
+            "value": 5689,
+            "range": "± 120",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "from_str//medium",
+            "value": 763443,
+            "range": "± 7669",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "from_str//large",
+            "value": 5344301,
+            "range": "± 9739",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "from_str//linefeeds",
+            "value": 79520,
+            "range": "± 164",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "rope_clone",
+            "value": 14,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/manual/small",
+            "value": 118,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/indexed/small",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/manual/small",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/indexed/small",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/manual/medium",
+            "value": 16355,
+            "range": "± 114",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/indexed/medium",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/manual/medium",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/indexed/medium",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/manual/large",
+            "value": 115427,
+            "range": "± 593",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/indexed/large",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/manual/large",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/indexed/large",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/manual/unicode_01",
+            "value": 242,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/indexed/unicode_01",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/manual/unicode_01",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/indexed/unicode_01",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/manual/cyrillic_01",
+            "value": 102,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/chars/indexed/cyrillic_01",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/manual/cyrillic_01",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "count/bytes/indexed/cyrillic_01",
+            "value": 0,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/manual/tiny",
+            "value": 480,
+            "range": "± 6",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/indexed/tiny",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/manual/small",
+            "value": 1051,
+            "range": "± 13",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/indexed/small",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/manual/medium",
+            "value": 146661,
+            "range": "± 14232",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/indexed/medium",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/manual/large",
+            "value": 1030161,
+            "range": "± 259127",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/indexed/large",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/manual/unicode_01",
+            "value": 2079,
+            "range": "± 48",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/indexed/unicode_01",
+            "value": 17,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/manual/cyrillic_01",
+            "value": 949,
+            "range": "± 16",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "byte_index/indexed/cyrillic_01",
+            "value": 52,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/rand/1024",
+            "value": 5086,
+            "range": "± 10",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/uniform/1024",
+            "value": 3805,
+            "range": "± 9",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/alternating/1024",
+            "value": 6092,
+            "range": "± 49",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/cyrillic/1024",
+            "value": 5757,
+            "range": "± 55",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/rand/4096",
+            "value": 19850,
+            "range": "± 38",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/uniform/4096",
+            "value": 15127,
+            "range": "± 14",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/alternating/4096",
+            "value": 21812,
+            "range": "± 37",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "push/cyrillic/4096",
+            "value": 20584,
+            "range": "± 105",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/random/small",
+            "value": 1621,
+            "range": "± 1558",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/start/small",
+            "value": 681,
+            "range": "± 55",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/middle/small",
+            "value": 2478,
+            "range": "± 251",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/end/small",
+            "value": 656,
+            "range": "± 37",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/random/medium",
+            "value": 1878,
+            "range": "± 1543",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/start/medium",
+            "value": 752,
+            "range": "± 41",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/middle/medium",
+            "value": 4237,
+            "range": "± 453",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "insert/end/medium",
+            "value": 712,
+            "range": "± 52",
             "unit": "ns/iter"
           }
         ]
