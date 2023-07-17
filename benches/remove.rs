@@ -25,6 +25,8 @@ fn remove(c: &mut Criterion) {
       ("small", 1, 1),
       ("medium", 15, 1),
       ("large", 1522, 4),
+      ("cyrillic_1", 1522, 4),
+      ("cyrillic_2", 1522, 4),
    ].iter() {
       g.bench_with_input(BenchmarkId::new("random", name), &data, |b, data| {
          let text = mul_string_length(TEXT, *mult as usize);
