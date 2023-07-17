@@ -15,6 +15,8 @@ fn from_str(c: &mut Criterion) {
       ("medium", include_str!("data/medium")),
       ("large", include_str!("data/large")),
       ("linefeeds", include_str!("data/lf")),
+      ("cyrillic_1", include_str!("data/cyrillic_1")),
+      ("cyrillic_2", include_str!("data/cyrillic_2")),
    ].iter() {
       g.bench_with_input(BenchmarkId::new("", name), &data, |b, data| {
          b.iter(|| {
