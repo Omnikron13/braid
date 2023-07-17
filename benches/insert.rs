@@ -10,8 +10,8 @@ use braid::ranged::Ranged;
 
 const TEXT: &str = include_str!("data/large");
 
-fn insert(c: &mut Criterion) {
-   let mut g = c.benchmark_group("insert");
+fn bench_insert(c: &mut Criterion, src: &str, text: &str) {
+   let mut g = c.benchmark_group(format!("insert"));
    g.sample_size(1000);
 
    for (name, data) in [
@@ -19,34 +19,40 @@ fn insert(c: &mut Criterion) {
       ("medium", "This is some text."),
       ("large", include_str!("data/small")),
    ].iter() {
-      g.bench_with_input(BenchmarkId::new("random", name), &data, |b, data| {
-         let mut rope = Strand::new_leaf(TEXT);
+      g.bench_with_input(BenchmarkId::new(format!("{src}/random"), name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(text);
          b.iter(|| {
             let len = rope.length();
             rope = rope.insert(data, random::<usize>() % len);
          });
       });
-      g.bench_with_input(BenchmarkId::new("start", name), &data, |b, data| {
-         let mut rope = Strand::new_leaf(TEXT);
+      g.bench_with_input(BenchmarkId::new(format!("{src}/start"), name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(text);
          b.iter(|| {
             rope = rope.insert(data, 0);
          });
       });
-      g.bench_with_input(BenchmarkId::new("middle", name), &data, |b, data| {
-         let mut rope = Strand::new_leaf(TEXT);
+      g.bench_with_input(BenchmarkId::new(format!("{src}/middle"), name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(text);
          b.iter(|| {
             let len = rope.length();
             rope = rope.insert(data, len / 2);
          });
       });
-      g.bench_with_input(BenchmarkId::new("end", name), &data, |b, data| {
-         let mut rope = Strand::new_leaf(TEXT);
+      g.bench_with_input(BenchmarkId::new(format!("{src}/end"), name), &data, |b, data| {
+         let mut rope = Strand::new_leaf(text);
          b.iter(|| {
             let len = rope.length();
             rope = rope.insert(data, len);
          });
       });
    }
+}
+
+fn insert(c: &mut Criterion) {
+   bench_insert(c, "large", include_str!("data/large"));
+   bench_insert(c, "cyrillic_1", include_str!("data/cyrillic_1"));
+   bench_insert(c, "cyrillic_2", include_str!("data/cyrillic_2"));
 }
 
 fn insert_after_clone(c: &mut Criterion) {
