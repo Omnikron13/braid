@@ -14,7 +14,8 @@ fn count(c: &mut Criterion) {
       "large",
       "unicode_01",
       //"unicode_02",
-      "cyrillic_01",
+      "cyrillic_1",
+      "cyrillic_2",
    ] {
       let data = std::fs::read_to_string(format!("benches/data/{name}")).unwrap();
       let index: Index = data.chars().collect();
@@ -54,7 +55,8 @@ fn byte_index(c: &mut Criterion) {
       //"unicode_trivial",
       "unicode_01",
       //"unicode_02",
-      "cyrillic_01",
+      "cyrillic_1",
+      "cyrillic_2",
    ] {
       let data = std::fs::read_to_string(format!("benches/data/{name}")).unwrap();
       let index: Index = data.chars().collect();
@@ -88,7 +90,7 @@ fn push(c: &mut Criterion) {
          ("rand", (0..n).map(|_| random::<char>()).collect()),
          ("uniform", vec!('~')),
          ("alternating", vec!['~', '💖']),
-         ("cyrillic", include_str!("data/cyrillic_01").chars().collect()),
+         ("cyrillic_1", include_str!("data/cyrillic_1").chars().collect()),
       ].iter() {
          g.throughput(Throughput::Bytes(n as u64));
          g.bench_with_input(BenchmarkId::new(*name, n), input, |b, input| {
