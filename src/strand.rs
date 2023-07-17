@@ -64,33 +64,6 @@ impl<'a> Strand<'a> {
       Strand::Branch(Arc::new(BranchNode { length: left.length() + right.length(), left, right }))
    }
 
-   // Passthrough to the shared (char) length of the node
-   #[inline]
-   pub fn length(&self) -> usize {
-      match self {
-         Strand::Branch(b) => b.length,
-         Strand::Leaf(l) => l.length,
-      }
-   }
-
-   /// Convert the various range types (`..`, `a..`, `..b`, `c..=d`, `..=e`) into `x..y` form.
-   #[inline]
-   pub fn normalise_range<T>(&self, r: T) -> Range<usize> where T: RangeBounds<usize> {
-      let (start, end) = match (r.start_bound(), r.end_bound()) {
-         (Bound::Unbounded, Bound::Unbounded) => return 0..self.length(),
-         (Bound::Unbounded, Bound::Included(&e)) => (0, e + 1),
-         (Bound::Unbounded, Bound::Excluded(&e)) => (0, e),
-         (Bound::Included(&s), Bound::Unbounded) => (s, self.length()),
-         (Bound::Included(&s), Bound::Included(&e)) => (s, e + 1),
-         (Bound::Included(&s), Bound::Excluded(&e)) => (s, e),
-         _ => unreachable!("start_bound() should never be exclusive"),
-      };
-      assert!(start <= end, "range out of order");
-      assert!(start < self.length(), "start of range out of bounds");
-      assert!(end <= self.length(), "end of range out of bounds");
-      start..end
-   }
-
 
    // Insert string at given (char) index
    #[inline]
@@ -280,6 +253,21 @@ impl<'a> Strand<'a> {
          Strand::Leaf(leaf) => {
             Box::new(leaf.index.newline_iter())
          },
+      }
+   }
+}
+
+
+impl Ranged for Strand<'_> {
+   /// Passthrough to the shared ([`char`]) length of the node.
+   ///
+   /// Implementing this as part of this trait also provides a default implementation
+   /// for of the `normalise_range()` method.
+   #[inline]
+   fn length(&self) -> usize {
+      match self {
+         Strand::Branch(b) => b.length,
+         Strand::Leaf(l) => l.length,
       }
    }
 }
