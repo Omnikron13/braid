@@ -71,3 +71,4 @@
 #![feature(test)]
 pub mod strand;
 pub mod index;
+pub mod ranged;

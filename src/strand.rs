@@ -15,6 +15,7 @@ use std::ops::{Bound, Range, RangeBounds};
 use std::sync::Arc;
 use xxhash_rust::xxh3::Xxh3;
 use crate::index::Index;
+use crate::ranged::Ranged;
 
 
 // Quickly constructs test strand from string literals.
@@ -118,7 +119,7 @@ impl<'a> Strand<'a> {
                Strand::new_leaf(s),
             )} else {
                // TODO: clean up
-               let (a, b) = leaf.split(i..=i);
+               let (a, b) = leaf.split(i..i);
                let a = Arc::new(a.unwrap());
                let b = Arc::new(b.unwrap());
                let c = Strand::new_leaf(s);
@@ -191,7 +192,7 @@ impl<'a> Strand<'a> {
 
          // Head/Tail/Split
          Strand::Leaf(leaf) => {
-            match leaf.split(r.start..=r.end) {
+            match leaf.split(r.start..r.end) {
                (Some(a), Some(b)) => {
                   return Strand::new_branch(
                      Strand::Leaf(Arc::new(a)),
@@ -354,28 +355,26 @@ impl LeafNode<'_> {
 
    #[inline]
    fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: RangeBounds<usize> {
-      let start = match r.start_bound() {
-         Bound::Unbounded => 0,
-         Bound::Included(&i) => i,
-         _ => unimplemented!(),
-      };
-      let end = match r.end_bound() {
-         Bound::Unbounded => self.value.chars().count(),
-         Bound::Included(&i) => i,
-         Bound::Excluded(&i) => i - 1,
-      };
-      assert!(end <= self.length, "index out of bounds");
-      let (a_index, b_index) = self.index.split(start..end);
+      let r = self.normalise_range(r);
+
+      let (a_index, b_index) = self.index.split(r.start..r.end);
       return (
-         match start {
+         match r.start {
             0 => None,
             s => Some(Self{ index: a_index, length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
          },
-         match end {
+         match r.end {
             e if e == self.length => None,
             e => Some(Self{ index: b_index, length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
          },
       );
+   }
+}
+
+impl Ranged for LeafNode<'_> {
+   #[inline]
+   fn length(&self) -> usize {
+      self.length
    }
 }
 
@@ -403,13 +402,13 @@ mod tests {
       let (a, b) = leaf.split(..);
       assert!(a.is_none());
       assert!(b.is_none());
-      let (a, b) = leaf.split(..4);
+      let (a, b) = leaf.split(..3);
       assert!(a.is_none());
       assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
       let (a, b) = leaf.split(3..);
       assert_eq!(a.unwrap().value, "abc");
       assert!(b.is_none());
-      let (a, b) = leaf.split(3..4);
+      let (a, b) = leaf.split(3..3);
       assert_eq!(a.unwrap().value, "abc");
       assert_eq!(b.unwrap().value, "ⒶⒷⒸ");
    }
