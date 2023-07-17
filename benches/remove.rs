@@ -6,6 +6,7 @@ extern crate rand;
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use rand::random;
 use braid::strand::Strand;
+use braid::ranged::Ranged;
 
 const TEXT: &str = include_str!("data/large");
 
