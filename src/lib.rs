@@ -72,3 +72,4 @@
 pub mod strand;
 pub mod index;
 pub mod ranged;
+pub mod splittable;
