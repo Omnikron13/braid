@@ -11,7 +11,7 @@
 use std::fmt;
 use std::iter;
 use std::hash::{Hash, Hasher};
-use std::ops::{Bound, Range, RangeBounds};
+use std::ops::RangeBounds;
 use std::sync::Arc;
 use xxhash_rust::xxh3::Xxh3;
 use crate::index::Index;
