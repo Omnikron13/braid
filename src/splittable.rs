@@ -35,6 +35,7 @@ pub trait Splittable: Ranged {
    fn get_split_ranges_opt(&self, r: impl RangeBounds<usize>) -> (Option<Range<usize>>, Option<Range<usize>>) {
       let (a, b) = self.get_split_ranges(r);
       (
+         // TODO: benchmark against `a.end == 0`, `b.start == self.length()`?
          if a.start == a.end { None } else { Some(a) },
          if b.start == b.end { None } else { Some(b) },
       )
