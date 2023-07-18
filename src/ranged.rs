@@ -5,8 +5,9 @@
 // copyright notice and this permission notice appear in all copies.
 
 //! This module provides the [`Ranged`] trait, which ensures a type can supply
-//! its own [`length()`] (generally in [`char`]s), and can translate the various
-//! range types (`..`, `a..`, `..b`, `..=c`, `d..=e`) into the 'normalised' `x..y` form.
+//! its own [`length()`](Ranged::length) (generally in [`char`]'s), and can
+//! translate the various range types (`..`, `a..`, `..b`, `..=c`, `d..=e`)
+//! into the 'normalised' `x..y` form.
 use std::ops::{Bound, Range, RangeBounds};
 
 /// Something with a defined range; a concrete size/length. `0..N`
