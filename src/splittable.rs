@@ -13,6 +13,7 @@
 use crate::ranged::Ranged;
 use std::ops::{Range, RangeBounds};
 
+/// A ([`Ranged`]) type which can be split into 0-2 parts.
 pub trait Splittable: Ranged {
    /// Get a 'left' & 'right' range which would cover everything before & after
    /// the given range (respectively), if that range were to be removed.
@@ -22,13 +23,14 @@ pub trait Splittable: Ranged {
       (0..r.start, r.end..self.length())
    }
 
-   /// TODO: document
+   /// Convenience method for splitting at a specific scalar offset (i.e. a zero-width range).
    #[inline(always)]
    fn get_split_at_ranges(&self, i: usize) -> (Range<usize>, Range<usize>) {
       self.get_split_ranges(i..i)
    }
 
-   /// TODO: document
+   /// Convenience method for getting `Option<Range>`'s instead of raw `Range`'s.
+   /// (Where `None` indicates that the range would be empty/zero-width.)
    #[inline(always)]
    fn get_split_ranges_opt(&self, r: impl RangeBounds<usize>) -> (Option<Range<usize>>, Option<Range<usize>>) {
       let (a, b) = self.get_split_ranges(r);
@@ -38,7 +40,9 @@ pub trait Splittable: Ranged {
       )
    }
 
-   /// TODO: document
+   /// Convenience method for splitting at a specific scalar offset (i.e. a zero-width range),
+   /// returning `Option<Range>`'s instead of raw `Range`'s.
+   /// (Where `None` indicates that the range would be empty/zero-width.)
    #[inline(always)]
    fn get_split_at_ranges_opt(&self, i: usize) -> (Option<Range<usize>>, Option<Range<usize>>) {
       self.get_split_ranges_opt(i..i)
