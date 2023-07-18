@@ -341,23 +341,6 @@ impl LeafNode<'_> {
    fn byte_index(&self, i: usize) -> usize {
       self.index.byte_index(i)
    }
-
-   #[inline]
-   fn split<T>(&self, r: T) -> (Option<Self>, Option<Self>) where T: RangeBounds<usize> {
-      let r = self.normalise_range(r);
-
-      let (a_index, b_index) = self.index.split(r.start..r.end);
-      return (
-         match r.start {
-            0 => None,
-            s => Some(Self{ index: a_index.unwrap(), value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
-         },
-         match r.end {
-            e if e == self.length() => None,
-            e => Some(Self{ index: b_index.unwrap(), value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
-         },
-      );
-   }
 }
 
 impl Ranged for LeafNode<'_> {
@@ -371,19 +354,19 @@ impl Splittable for LeafNode<'_> {
    /// TODO: document
    #[inline]
    fn split(&self, r: impl RangeBounds<usize>) -> (Option<Self>, Option<Self>) {
-      let r = self.normalise_range(r);
-      let (r_a, r_b) = self.get_split_ranges_opt(r.clone());
-      let (i_a, i_b) = self.index.split(r);
-      (
-         Some(Self {
-            index: i_a.unwrap(),
-            value: unsafe { self.value.get_unchecked(r_a.unwrap()) },
+      let (a, b) = self.index.split(r);
+      return (
+         a.map(|x| {
+            let value = unsafe{ self.value.get_unchecked(..self.byte_index(x.length())) };
+            let index = x;
+            Self { index, value }
          }),
-         Some(Self {
-            index: i_b.unwrap(),
-            value: unsafe { self.value.get_unchecked(r_b.unwrap()) },
+         b.map(|x| {
+            let value = unsafe{ self.value.get_unchecked(self.byte_index(self.length() - x.length())..) };
+            let index = x;
+            Self { index, value }
          }),
-      )
+      );
    }
 }
 
