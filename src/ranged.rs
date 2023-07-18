@@ -12,7 +12,7 @@ use std::ops::{Bound, Range, RangeBounds};
 
 /// Something with a defined range; a concrete size/length. `0..N`
 pub trait Ranged {
-   /// Get the length/size of the thing (typically in [`char`]s).
+   /// Get the length/size of the thing (typically in [`char`]'s).
    /// This is required for various calculations that this type, and sub-types,
    /// need to perform.
    fn length(&self) -> usize;
