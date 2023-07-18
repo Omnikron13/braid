@@ -125,10 +125,15 @@ impl Splittable for CharWidth {
          r.end = r.end.saturating_sub(x.count as usize);
          return v;
       });
-      // TODO: return None for empty indexes..?
       (
-         Some(Self{ length: r.start, widths: a.into_boxed_slice() }),
-         Some(Self{ length: self.length - r.end, widths: b.into_boxed_slice() }),
+         match a.is_empty() {
+            true => None,
+            false => Some(Self{ length: a.iter().fold(0, |a, x| a + x.count as usize), widths: a.into_boxed_slice() })
+         },
+         match b.is_empty() {
+            true => None,
+            false => Some(Self{ length: b.iter().fold(0, |a, x| a + x.count as usize), widths: b.into_boxed_slice() })
+         },
       )
    }
 }
@@ -255,17 +260,17 @@ mod tests {
    fn split() {
       let i = CharWidthBuilder::from("abc󰯬󰯯󰯲123ⅠⅡⅢ".chars()).freeze();
       let (a, b) = i.split(0..0);
-      assert_eq!(format!("{a:?}"), "Some([])");
+      assert_eq!(format!("{a:?}"), "None");
       assert_eq!(format!("{b:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
       let (a, b) = i.split(6..6);
       assert_eq!(format!("{a:?}"), "Some([1:3, 4:3])");
       assert_eq!(format!("{b:?}"), "Some([1:3, 3:3])");
       let (a, b) = i.split(0..12);
-      assert_eq!(format!("{a:?}"), "Some([])");
-      assert_eq!(format!("{b:?}"), "Some([])");
+      assert_eq!(format!("{a:?}"), "None");
+      assert_eq!(format!("{b:?}"), "None");
       let (a, b) = i.split(12..12);
       assert_eq!(format!("{a:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
-      assert_eq!(format!("{b:?}"), "Some([])");
+      assert_eq!(format!("{b:?}"), "None");
       let (a, b) = i.split(1..11);
       assert_eq!(format!("{a:?}"), "Some([1:1])");
       assert_eq!(format!("{b:?}"), "Some([3:1])");
