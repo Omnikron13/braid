@@ -48,7 +48,6 @@ pub struct BranchNode<'a> {
 
 pub struct LeafNode<'a> {
    index: Index,
-   length: usize,
    value: &'a str,
 }
 
@@ -56,8 +55,7 @@ impl<'a> Strand<'a> {
    #[inline]
    pub fn new_leaf(value: &'a str) -> Strand<'a> {
       let index = value.chars().collect::<Index>();
-      let length = index.count();
-      Strand::Leaf(Arc::new(LeafNode{ index, length, value }))
+      Strand::Leaf(Arc::new(LeafNode{ index, value }))
    }
 
    #[inline]
@@ -88,7 +86,7 @@ impl<'a> Strand<'a> {
             if i == 0 {(
                Strand::new_leaf(s),
                Strand::Leaf(leaf.clone()),
-            )} else if i == leaf.length {(
+            )} else if i == leaf.length() {(
                Strand::Leaf(leaf.clone()),
                Strand::new_leaf(s),
             )} else {
@@ -99,7 +97,7 @@ impl<'a> Strand<'a> {
                let c = Strand::new_leaf(s);
                (
                   Strand::Leaf(a),
-                  Strand::Branch(Arc::new(BranchNode{length: c.length() + b.length, left: c, right: Strand::Leaf(b)})),
+                  Strand::Branch(Arc::new(BranchNode{length: c.length() + b.length(), left: c, right: Strand::Leaf(b)})),
                )
             }
          },
@@ -268,7 +266,7 @@ impl Ranged for Strand<'_> {
    fn length(&self) -> usize {
       match self {
          Strand::Branch(b) => b.length,
-         Strand::Leaf(l) => l.length,
+         Strand::Leaf(l) => l.length(),
       }
    }
 }
@@ -350,11 +348,11 @@ impl LeafNode<'_> {
       return (
          match r.start {
             0 => None,
-            s => Some(Self{ index: a_index.unwrap(), length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+            s => Some(Self{ index: a_index.unwrap(), value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
          },
          match r.end {
-            e if e == self.length => None,
-            e => Some(Self{ index: b_index.unwrap(), length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+            e if e == self.length() => None,
+            e => Some(Self{ index: b_index.unwrap(), value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
          },
       );
    }
@@ -363,7 +361,7 @@ impl LeafNode<'_> {
 impl Ranged for LeafNode<'_> {
    #[inline]
    fn length(&self) -> usize {
-      self.length
+      self.index.length()
    }
 }
 
@@ -387,7 +385,7 @@ mod tests {
    #[test]
    fn test_split() {
       let s = &"abcⒶⒷⒸ";
-      let leaf = LeafNode{ index: s.chars().collect::<Index>(), length: 6, value: s };
+      let leaf = LeafNode{ index: s.chars().collect::<Index>(), value: s };
       let (a, b) = leaf.split(..);
       assert!(a.is_none());
       assert!(b.is_none());
