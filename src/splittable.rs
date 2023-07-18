@@ -5,7 +5,7 @@
 // copyright notice and this permission notice appear in all copies.
 
 //! This module provides the [`Splittable`] trait, which enforces that a type
-//! can be split into 1-2 parts.
+//! can be split into 0-2 parts (i.e. left & right) when removing a given range.
 //!
 //! To achieve this, the type must also implement [`Ranged`], which ensures it
 //! has a defined [`length()`](Ranged::length) (generally in [`char`]'s), so
