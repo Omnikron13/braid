@@ -65,14 +65,8 @@ impl Splittable for Index {
       let (cw_a, cw_b) = self.char_width.split(r.clone());
       let (nl_a, nl_b) = self.newline.split(r.clone());
       return (
-         Some(Index {
-            char_width: cw_a.unwrap(),
-            newline: nl_a,
-         }),
-         Some(Index {
-            char_width: cw_b.unwrap(),
-            newline: nl_b,
-         }),
+         cw_a.map(|a| Self{ char_width: a, newline: nl_a }),
+         cw_b.map(|b| Self{ char_width: b, newline: nl_b }),
       );
    }
 }
