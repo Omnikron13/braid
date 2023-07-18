@@ -8,8 +8,8 @@
 //! can be split into 1-2 parts.
 //!
 //! To achieve this, the type must also implement [`Ranged`], which ensures it
-//! has a defined [`length()`] (generally in [`chars`]), so that the length of
-//! the left & right parts can be calculated.
+//! has a defined [`length()`](Ranged::length) (generally in [`char`]'s), so
+//! that the length of the left & right parts can be calculated.
 use crate::ranged::Ranged;
 use std::ops::{Range, RangeBounds};
 
