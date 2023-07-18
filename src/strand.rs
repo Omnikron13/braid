@@ -16,6 +16,7 @@ use std::sync::Arc;
 use xxhash_rust::xxh3::Xxh3;
 use crate::index::Index;
 use crate::ranged::Ranged;
+use crate::splittable::Splittable;
 
 
 // Quickly constructs test strand from string literals.
@@ -349,11 +350,11 @@ impl LeafNode<'_> {
       return (
          match r.start {
             0 => None,
-            s => Some(Self{ index: a_index, length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
+            s => Some(Self{ index: a_index.unwrap(), length: s, value: unsafe{ self.value.get_unchecked(..self.byte_index(s)) } }),
          },
          match r.end {
             e if e == self.length => None,
-            e => Some(Self{ index: b_index, length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
+            e => Some(Self{ index: b_index.unwrap(), length: self.length - e, value: unsafe{ self.value.get_unchecked(self.byte_index(e)..) } }),
          },
       );
    }
