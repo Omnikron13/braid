@@ -15,6 +15,7 @@ use crate::splittable::Splittable;
 
 /// TODO: document
 pub struct Index {
+   length: usize,
    char_width: CharWidth,
    newline: Newline,
 }
@@ -52,7 +53,7 @@ impl Ranged for Index {
    /// for of the `normalise_range()` method.
    #[inline]
    fn length(&self) -> usize {
-      self.count()
+      self.length
    }
 }
 
@@ -62,13 +63,15 @@ impl Splittable for Index {
    fn split(&self, r: impl RangeBounds<usize>) -> (Option<Self>, Option<Self>) {
       let r = self.normalise_range(r);
       let (cw_a, cw_b) = self.char_width.split(r.clone());
-      let (nl_a, nl_b) = self.newline.split(r);
+      let (nl_a, nl_b) = self.newline.split(r.clone());
       return (
          Some(Index {
+            length: r.start,
             char_width: cw_a,
             newline: nl_a,
          }),
          Some(Index {
+            length: self.length - r.start,
             char_width: cw_b,
             newline: nl_b,
          }),
@@ -139,9 +142,13 @@ impl IndexBuilder {
    /// TODO: document
    #[inline]
    pub fn freeze(self) -> Index {
+      let char_width = self.char_width.freeze();
+      let length = char_width.count();
+      let newline = self.newline.freeze();
       return Index {
-         char_width: self.char_width.freeze(),
-         newline: self.newline.freeze(),
+         length,
+         char_width,
+         newline,
       };
    }
 }
