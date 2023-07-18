@@ -48,7 +48,12 @@ pub trait Splittable: Ranged {
       self.get_split_ranges_opt(i..i)
    }
 
-   /// TODO: document!
+   /// Split the type into 0-2 parts (represented as `Option`'s), based on a given input range.
+   ///
+   /// A valid input range could cover from `0` to [`self.length()`](Ranged::length),
+   /// and represents the range of data that is 'removed' in the operation.
+   /// (A range starting at `0` will result in the 'left' part being `None`, and a range
+   /// ending at `self.length()` will result in the 'right' part being `None`.)
    fn split(&self, r: impl RangeBounds<usize>) -> (Option<Self>, Option<Self>) where Self: Sized;
 
 }
