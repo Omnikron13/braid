@@ -15,7 +15,9 @@
 //! cheaper past the initial iteration.
 use std::fmt;
 use std::iter::{FromIterator, IntoIterator};
-use std::ops::Range;
+use std::ops::RangeBounds;
+use crate::ranged::Ranged;
+use crate::splittable::Splittable;
 
 // TODO: seriously ponder the dodgy name on this one...
 /// TODO: document Run struct
@@ -26,6 +28,7 @@ pub struct Run {
 
 /// TODO: document CharWidth struct
 pub struct CharWidth {
+    length: usize,
     widths: Box<[Run]>,
 }
 
@@ -71,12 +74,6 @@ impl CharWidth {
       return self.widths.iter();
    }
 
-   /// Get the total char count of the indexed string.
-   #[inline]
-   pub fn count(&self) -> usize {
-      return self.widths.iter().fold(0, |a, x| a + x.count as usize);
-   }
-
    /// Get the total byte count of the indexed string.
    #[inline]
    pub fn count_bytes(&self) -> usize {
@@ -102,10 +99,21 @@ impl CharWidth {
             return a + x.byte_count() as usize;
          });
    }
+}
 
-   /// TODO: document this?
+impl Ranged for CharWidth {
+   /// TODO: document CharWidth::length
    #[inline]
-   pub fn split(&self, mut r: Range<usize>) -> (Self, Self) where Self: Sized {
+   fn length(&self) -> usize {
+      return self.length;
+   }
+}
+
+impl Splittable for CharWidth {
+   /// TODO: document CharWidth::split
+   #[inline]
+   fn split(&self, r: impl RangeBounds<usize>) -> (Option<Self>, Option<Self>) {
+      let mut r = self.normalise_range(r);
       let (a, b) = self.iter().fold((Vec::<Run>::new(), Vec::<Run>::new()), |mut v, x| {
          if r.start > 0 {
             v.0.push(Run { width: x.width, count: std::cmp::min(x.count, r.start as u32) });
@@ -117,7 +125,11 @@ impl CharWidth {
          r.end = r.end.saturating_sub(x.count as usize);
          return v;
       });
-      return (Self{ widths: a.into_boxed_slice() }, Self{ widths: b.into_boxed_slice() });
+      // TODO: return None for empty indexes..?
+      (
+         Some(Self{ length: r.start, widths: a.into_boxed_slice() }),
+         Some(Self{ length: self.length - r.end, widths: b.into_boxed_slice() }),
+      )
    }
 }
 
@@ -158,9 +170,10 @@ impl CharWidthBuilder {
    /// TODO: document CharWidthBuilder::freeze
    #[inline]
    pub fn freeze(self) -> CharWidth {
-      return CharWidth {
-          widths: Box::from(self.widths),
-      };
+      CharWidth {
+         length: self.widths.iter().fold(0, |a, x| a + x.count as usize),
+         widths: Box::from(self.widths),
+      }
    }
 }
 
@@ -214,7 +227,7 @@ mod tests {
       m.push('ਇ');
       m.push('𑄗');
       let m = m.freeze();
-      assert_eq!(m.count(), 4);
+      assert_eq!(m.length(), 4);
       assert_eq!(m.count_bytes(), 10);
    }
 
@@ -222,7 +235,7 @@ mod tests {
    fn from_iter() {
       let s = "test ‣ string ‣ alpha";
       let m = s.chars().collect::<super::CharWidthBuilder>().freeze();
-      assert_eq!(m.count(), 21);
+      assert_eq!(m.length(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
    }
@@ -233,34 +246,34 @@ mod tests {
    fn from_intoiterator() {
       let s = "test ‣ string ‣ alpha";
       let m = CharWidthBuilder::from(s.chars()).freeze();
-      assert_eq!(m.count(), 21);
+      assert_eq!(m.length(), 21);
       assert_eq!(m.count_bytes(), 25);
       assert_eq!(m.iter().map(|r| format!("({}:{})", r.width, r.count)).fold(String::new(), |s, x| format!("{s}{x} ")), "(1:5) (3:1) (1:8) (3:1) (1:6) ");
    }
 
    #[test]
-   fn split_index() {
+   fn split() {
       let i = CharWidthBuilder::from("abc󰯬󰯯󰯲123ⅠⅡⅢ".chars()).freeze();
       let (a, b) = i.split(0..0);
-      assert_eq!(format!("{a:?}"), "[]");
-      assert_eq!(format!("{b:?}"), "[1:3, 4:3, 1:3, 3:3]");
+      assert_eq!(format!("{a:?}"), "Some([])");
+      assert_eq!(format!("{b:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
       let (a, b) = i.split(6..6);
-      assert_eq!(format!("{a:?}"), "[1:3, 4:3]");
-      assert_eq!(format!("{b:?}"), "[1:3, 3:3]");
+      assert_eq!(format!("{a:?}"), "Some([1:3, 4:3])");
+      assert_eq!(format!("{b:?}"), "Some([1:3, 3:3])");
       let (a, b) = i.split(0..12);
-      assert_eq!(format!("{a:?}"), "[]");
-      assert_eq!(format!("{b:?}"), "[]");
+      assert_eq!(format!("{a:?}"), "Some([])");
+      assert_eq!(format!("{b:?}"), "Some([])");
       let (a, b) = i.split(12..12);
-      assert_eq!(format!("{a:?}"), "[1:3, 4:3, 1:3, 3:3]");
-      assert_eq!(format!("{b:?}"), "[]");
+      assert_eq!(format!("{a:?}"), "Some([1:3, 4:3, 1:3, 3:3])");
+      assert_eq!(format!("{b:?}"), "Some([])");
       let (a, b) = i.split(1..11);
-      assert_eq!(format!("{a:?}"), "[1:1]");
-      assert_eq!(format!("{b:?}"), "[3:1]");
+      assert_eq!(format!("{a:?}"), "Some([1:1])");
+      assert_eq!(format!("{b:?}"), "Some([3:1])");
       let (a, b) = i.split(3..9);
-      assert_eq!(format!("{a:?}"), "[1:3]");
-      assert_eq!(format!("{b:?}"), "[3:3]");
+      assert_eq!(format!("{a:?}"), "Some([1:3])");
+      assert_eq!(format!("{b:?}"), "Some([3:3])");
       let (a, b) = i.split(4..8);
-      assert_eq!(format!("{a:?}"), "[1:3, 4:1]");
-      assert_eq!(format!("{b:?}"), "[1:1, 3:3]");
+      assert_eq!(format!("{a:?}"), "Some([1:3, 4:1])");
+      assert_eq!(format!("{b:?}"), "Some([1:1, 3:3])");
    }
 }

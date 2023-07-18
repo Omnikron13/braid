@@ -15,7 +15,6 @@ use crate::splittable::Splittable;
 
 /// TODO: document
 pub struct Index {
-   length: usize,
    char_width: CharWidth,
    newline: Newline,
 }
@@ -53,7 +52,7 @@ impl Ranged for Index {
    /// for of the `normalise_range()` method.
    #[inline]
    fn length(&self) -> usize {
-      self.length
+      self.char_width.length()
    }
 }
 
@@ -66,13 +65,11 @@ impl Splittable for Index {
       let (nl_a, nl_b) = self.newline.split(r.clone());
       return (
          Some(Index {
-            length: r.start,
-            char_width: cw_a,
+            char_width: cw_a.unwrap(),
             newline: nl_a,
          }),
          Some(Index {
-            length: self.length - r.start,
-            char_width: cw_b,
+            char_width: cw_b.unwrap(),
             newline: nl_b,
          }),
       );
@@ -143,10 +140,8 @@ impl IndexBuilder {
    #[inline]
    pub fn freeze(self) -> Index {
       let char_width = self.char_width.freeze();
-      let length = char_width.count();
       let newline = self.newline.freeze();
       return Index {
-         length,
          char_width,
          newline,
       };
@@ -201,15 +196,15 @@ impl From<String> for IndexBuilder {
 fn test_index_from() {
    let s = "abcⓐⓑⓒ";
    let index: Index = s.chars().collect();
-   assert_eq!(index.char_width.count(), 6);
+   assert_eq!(index.char_width.length(), 6);
    assert_eq!(index.char_width.count_bytes(), 12);
 
    let index: Index = Index::from(s);
-   assert_eq!(index.char_width.count(), 6);
+   assert_eq!(index.char_width.length(), 6);
    assert_eq!(index.char_width.count_bytes(), 12);
 
    let s = String::from(s);
    let index: Index = Index::from(s);
-   assert_eq!(index.char_width.count(), 6);
+   assert_eq!(index.char_width.length(), 6);
    assert_eq!(index.char_width.count_bytes(), 12);
 }
