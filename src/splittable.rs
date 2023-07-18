@@ -13,7 +13,7 @@
 use crate::ranged::Ranged;
 use std::ops::{Range, RangeBounds};
 
-trait Splittable: Ranged {
+pub trait Splittable: Ranged {
    /// Get a 'left' & 'right' range which would cover everything before & after
    /// the given range (respectively), if that range were to be removed.
    #[inline(always)]
