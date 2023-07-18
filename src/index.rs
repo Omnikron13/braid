@@ -21,10 +21,10 @@ pub struct Index {
 }
 
 impl Index {
-   /// TODO: document
+   // TODO: document? maybe remove... this is essentially an alias for length(), which is required by Ranged
    #[inline]
    pub fn count(&self) -> usize {
-      self.char_width.count()
+      self.length()
    }
 
    /// TODO: document
