@@ -335,6 +335,15 @@ impl Hash for Strand<'_> {
 }
 
 
+impl Ranged for BranchNode<'_> {
+   /// TODO: document BranchNode::length()
+   #[inline]
+   fn length(&self) -> usize {
+      self.left.length() + self.right.length()
+   }
+}
+
+
 impl LeafNode<'_> {
    // Convert a char/unicode index into a raw byte index for low level indexing/slicing/etc.
    #[inline]
