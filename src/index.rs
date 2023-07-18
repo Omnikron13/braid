@@ -11,6 +11,7 @@ use std::ops::RangeBounds;
 use char_width::{CharWidth, CharWidthBuilder};
 use newline::{Newline, NewlineBuilder};
 use crate::ranged::Ranged;
+use crate::splittable::Splittable;
 
 /// TODO: document
 pub struct Index {
@@ -39,24 +40,6 @@ impl Index {
 
    /// TODO: document
    #[inline]
-   pub fn split<T>(&self, r: T) -> (Index, Index) where T: RangeBounds<usize> {
-      let r = self.normalise_range(r);
-      let (cw_a, cw_b) = self.char_width.split(r.clone());
-      let (nl_a, nl_b) = self.newline.split(r);
-      return (
-         Index {
-            char_width: cw_a,
-            newline: nl_a,
-         },
-         Index {
-            char_width: cw_b,
-            newline: nl_b,
-         }
-      );
-   }
-
-   /// TODO: document
-   #[inline]
    pub fn newline_iter(&self) -> impl Iterator<Item=usize> + '_ {
       self.newline.iter()
    }
@@ -70,6 +53,26 @@ impl Ranged for Index {
    #[inline]
    fn length(&self) -> usize {
       self.count()
+   }
+}
+
+impl Splittable for Index {
+   /// TODO: document
+   #[inline]
+   fn split(&self, r: impl RangeBounds<usize>) -> (Option<Self>, Option<Self>) {
+      let r = self.normalise_range(r);
+      let (cw_a, cw_b) = self.char_width.split(r.clone());
+      let (nl_a, nl_b) = self.newline.split(r);
+      return (
+         Some(Index {
+            char_width: cw_a,
+            newline: nl_a,
+         }),
+         Some(Index {
+            char_width: cw_b,
+            newline: nl_b,
+         }),
+      );
    }
 }
 
