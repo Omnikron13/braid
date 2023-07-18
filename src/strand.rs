@@ -40,12 +40,14 @@ pub enum Strand<'a> {
    Leaf(Arc<LeafNode<'a>>),
 }
 
+#[derive(Debug)]
 pub struct BranchNode<'a> {
    length: usize,
    left: Strand<'a>,
    right: Strand<'a>,
 }
 
+#[derive(Debug)]
 pub struct LeafNode<'a> {
    index: Index,
    value: &'a str,

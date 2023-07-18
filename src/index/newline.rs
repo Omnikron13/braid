@@ -8,6 +8,7 @@
 use std::ops::Range;
 
 /// TODO: document
+#[derive(Debug)]
 pub struct Newline {
    index: Box<[usize]>,
 }

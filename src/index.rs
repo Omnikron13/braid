@@ -14,6 +14,7 @@ use crate::ranged::Ranged;
 use crate::splittable::Splittable;
 
 /// TODO: document
+#[derive(Debug)]
 pub struct Index {
    char_width: CharWidth,
    newline: Newline,
