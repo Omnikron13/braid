@@ -365,6 +365,26 @@ impl Ranged for LeafNode<'_> {
    }
 }
 
+impl Splittable for LeafNode<'_> {
+   /// TODO: document
+   #[inline]
+   fn split(&self, r: impl RangeBounds<usize>) -> (Option<Self>, Option<Self>) {
+      let r = self.normalise_range(r);
+      let (r_a, r_b) = self.get_split_ranges_opt(r.clone());
+      let (i_a, i_b) = self.index.split(r);
+      (
+         Some(Self {
+            index: i_a.unwrap(),
+            value: unsafe { self.value.get_unchecked(r_a.unwrap()) },
+         }),
+         Some(Self {
+            index: i_b.unwrap(),
+            value: unsafe { self.value.get_unchecked(r_b.unwrap()) },
+         }),
+      )
+   }
+}
+
 
 
 // Some lovely tests to try and catch regressions, etc.
