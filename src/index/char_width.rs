@@ -17,16 +17,19 @@ use std::fmt;
 use std::iter::{FromIterator, IntoIterator};
 use std::ops::RangeBounds;
 use crate::ranged::Ranged;
+use crate::sliceable::Sliceable;
 use crate::splittable::Splittable;
 
 // TODO: seriously ponder the dodgy name on this one...
 /// TODO: document Run struct
+#[derive(Clone)]
 pub struct Run {
    width: u8,
    count: u32,
 }
 
 /// TODO: document CharWidth struct
+#[derive(Clone)]
 pub struct CharWidth {
     length: usize,
     widths: Box<[Run]>,
@@ -106,6 +109,48 @@ impl Ranged for CharWidth {
    #[inline]
    fn length(&self) -> usize {
       return self.length;
+   }
+}
+
+impl Sliceable for CharWidth {
+   /// TODO: document crate::sliceable::Sliceable
+   #[inline]
+   fn slice(&self, r: impl RangeBounds<usize>) -> Self {
+      let mut r = self.normalise_range(r);
+      let w = self.widths.iter().fold(Vec::<Run>::new(), |mut v, x| {
+         // Nothing left to include; return result
+         if r.end == 0 {
+            return v;
+         }
+         // Skip shit before the start of the range...
+         if r.start >= x.count as usize {
+            r.start = r.start.saturating_sub(x.count as usize);
+            r.end = r.end.saturating_sub(x.count as usize);
+            return v;
+         }
+         // Special case for the the last...
+         if r.end as u32 <= x.count {
+            v.push(Run{
+               width: x.width,
+               count: r.end as u32 - r.start as u32,
+            });
+            r.start = 0;
+            r.end = 0;
+            return v;
+         }
+         // General case where data is included...
+         v.push(Run{
+            width: x.width,
+            count: x.count - r.start as u32,
+         });
+         r.start = 0;
+         r.end = r.end.saturating_sub(x.count as usize - r.start);
+         return v;
+      });
+      return CharWidth {
+         length: w.iter().fold(0, |a, x| a + x.count as usize),
+         widths: w.into_boxed_slice(),
+      };
    }
 }
 
