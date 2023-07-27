@@ -350,6 +350,11 @@ impl LeafNode<'_> {
    fn byte_index(&self, i: usize) -> usize {
       self.index.byte_index(i)
    }
+
+   /// TODO: document LeafNode::get_index()
+   pub fn get_index(&self) -> &Index {
+      &self.index
+   }
 }
 
 impl Ranged for LeafNode<'_> {

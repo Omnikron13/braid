@@ -44,6 +44,11 @@ impl Index {
    pub fn newline_iter(&self) -> impl Iterator<Item=usize> + '_ {
       self.newline.iter()
    }
+
+   /// TODO: document Index::get_char_width()
+   pub fn get_char_width(&self) -> &CharWidth {
+      &self.char_width
+   }
 }
 
 impl Ranged for Index {
