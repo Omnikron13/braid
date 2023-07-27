@@ -33,3 +33,7 @@ harness = false
 [[bench]]
 name = "index"
 harness = false
+
+[[bench]]
+name = "slice"
+harness = false
