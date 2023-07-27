@@ -282,6 +282,24 @@ mod tests {
    }
 
    #[test]
+   fn slice() {
+      let cw = CharWidth {
+         length: 40,
+         widths: Box::new([
+            Run{width: 1, count: 10},
+            Run{width: 2, count: 10},
+            Run{width: 3, count: 10},
+            Run{width: 4, count: 10},
+         ]),
+      };
+      assert_eq!(format!("{:?}", cw.clone().slice(..)), "[1:10, 2:10, 3:10, 4:10]");
+      assert_eq!(format!("{:?}", cw.clone().slice(..35)), "[1:10, 2:10, 3:10, 4:5]");
+      assert_eq!(format!("{:?}", cw.clone().slice(5..)), "[1:5, 2:10, 3:10, 4:10]");
+      assert_eq!(format!("{:?}", cw.clone().slice(5..35)), "[1:5, 2:10, 3:10, 4:5]");
+      assert_eq!(format!("{:?}", cw.clone().slice(10..30)), "[2:10, 3:10]");
+   }
+
+   #[test]
    fn from_iter() {
       let s = "test ‣ string ‣ alpha";
       let m = s.chars().collect::<super::CharWidthBuilder>().freeze();
