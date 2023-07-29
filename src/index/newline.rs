@@ -5,7 +5,8 @@
 // copyright notice and this permission notice appear in all copies.
 
 //! This module provides an index of newlines in the string.
-use std::ops::Range;
+use std::ops::{Bound, Range};
+use crate::sliceable::Sliceable;
 
 /// TODO: document
 #[derive(Debug)]
@@ -32,6 +33,31 @@ impl Newline {
    }
 }
 
+
+impl Sliceable for Newline {
+   /// TODO: document Newline::slice()
+   #[inline]
+   fn slice(&self, range: impl std::ops::RangeBounds<usize>) -> Self {
+      // Normalise range bounds
+      let s = match range.start_bound() {
+         Bound::Included(&s) => s,
+         Bound::Unbounded => 0,
+         _ => unreachable!("start bound must be inclusive or unbounded"),
+      };
+      let e = match range.end_bound() {
+         Bound::Included(&e) => e,
+         Bound::Excluded(&e) => e - 1,
+         Bound::Unbounded => usize::MAX,
+      };
+      // Error out nonsensible ranges
+      assert!(s <= e, "start bound must be less than or equal to end bound");
+      // Find internal array start/end indices
+      let s = self.index.iter().enumerate().skip_while(|(_, &q)| q < s).take(1).map(|(i, _)| i).next().unwrap_or(self.index.len());
+      let e = self.index.iter().enumerate().skip_while(|(_, &q)| q <= e).take(1).map(|(i, _)| i).next().unwrap_or(self.index.len());
+      // Return sliced Newline index (literally a slice really, with this one)
+      return Newline{index: unsafe{ self.index.get_unchecked(s..e) }.into()};
+   }
+}
 
 /// TODO: document
 pub struct NewlineBuilder {
@@ -76,4 +102,26 @@ fn test_newline_index() {
    let (a, b) = index.split(3..8);
    assert_eq!(format!("{:?}", a.index), "[3]");
    assert_eq!(format!("{:?}", b.index), "[11]");
+}
+
+#[cfg(test)]
+mod tests {
+   use super::*;
+   use pretty_assertions::assert_eq;
+
+   #[test]
+   fn slice_newline() {
+      let nl =  Newline{index: Box::new([2, 3, 5, 7, 11, 13, 17, 19, 23, 29])};
+      assert_eq!(format!("{:?}", nl), "Newline { index: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29] }");
+      assert_eq!(format!("{:?}", nl.slice(..)), "Newline { index: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29] }");
+      assert_eq!(format!("{:?}", nl.slice(4..)), "Newline { index: [5, 7, 11, 13, 17, 19, 23, 29] }");
+      assert_eq!(format!("{:?}", nl.slice(5..)), "Newline { index: [5, 7, 11, 13, 17, 19, 23, 29] }");
+      assert_eq!(format!("{:?}", nl.slice(..=19)), "Newline { index: [2, 3, 5, 7, 11, 13, 17, 19] }");
+      assert_eq!(format!("{:?}", nl.slice(..=20)), "Newline { index: [2, 3, 5, 7, 11, 13, 17, 19] }");
+      assert_eq!(format!("{:?}", nl.slice(4..=20)), "Newline { index: [5, 7, 11, 13, 17, 19] }");
+      assert_eq!(format!("{:?}", nl.slice(5..=19)), "Newline { index: [5, 7, 11, 13, 17, 19] }");
+      assert_eq!(format!("{:?}", nl.slice(2..=2)), "Newline { index: [2] }");
+      assert_eq!(format!("{:?}", nl.slice(0..1)), "Newline { index: [] }");
+      assert_eq!(format!("{:?}", nl.slice(30..40)), "Newline { index: [] }");
+   }
 }
