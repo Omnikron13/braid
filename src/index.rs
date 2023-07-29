@@ -12,6 +12,7 @@ use char_width::{CharWidth, CharWidthBuilder};
 use newline::{Newline, NewlineBuilder};
 use crate::ranged::Ranged;
 use crate::splittable::Splittable;
+use crate::sliceable::Sliceable;
 
 /// TODO: document
 #[derive(Debug)]
@@ -73,6 +74,18 @@ impl Splittable for Index {
          cw_a.map(|a| Self{ char_width: a, newline: nl_a }),
          cw_b.map(|b| Self{ char_width: b, newline: nl_b }),
       );
+   }
+}
+
+impl Sliceable for Index {
+   /// TODO: document Index::slice()
+   #[inline]
+   fn slice(&self, r: impl RangeBounds<usize>) -> Self {
+      let r = self.normalise_range(r);
+      Self {
+         char_width: self.char_width.slice(r.clone()),
+         newline: self.newline.slice(r),
+      }
    }
 }
 
@@ -207,4 +220,34 @@ fn test_index_from() {
    let index: Index = Index::from(s);
    assert_eq!(index.char_width.length(), 6);
    assert_eq!(index.char_width.count_bytes(), 12);
+}
+
+#[cfg(test)]
+mod tests {
+   use super::*;
+   use pretty_assertions::assert_eq;
+
+   #[test]
+   fn test_slice_index() {
+      let i: Index = "abcⓐⓑⓒ".chars().collect();
+      assert_eq!(i.count(), 6);
+      assert_eq!(i.count_bytes(), 12);
+      assert_eq!(i.newline_iter().collect::<Vec<usize>>(), []);
+
+      let i_slice = i.slice(..);
+      assert_eq!(i_slice.count(), 6);
+      assert_eq!(i_slice.count_bytes(), 12);
+
+      let i_slice = i.slice(..3);
+      assert_eq!(i_slice.count(), 3);
+      assert_eq!(i_slice.count_bytes(), 3);
+
+      let i_slice = i.slice(3..);
+      assert_eq!(i_slice.count(), 3);
+      assert_eq!(i_slice.count_bytes(), 9);
+
+      let i_slice = i.slice(2..=3);
+      assert_eq!(i_slice.count(), 2);
+      assert_eq!(i_slice.count_bytes(), 4);
+   }
 }
